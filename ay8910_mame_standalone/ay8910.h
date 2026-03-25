@@ -131,6 +131,7 @@ public:
 	void start();
 	void reset();
 	void sound_stream_update(sound_stream &stream);
+    std::vector<short> generate(int num_samples, int sample_rate);
 
 
 protected:

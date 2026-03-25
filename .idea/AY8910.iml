@@ -6,6 +6,5 @@
     </content>
     <orderEntry type="jdk" jdkName="uv (AY8910)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
-    <orderEntry type="module" module-name="mame" />
   </component>
 </module>

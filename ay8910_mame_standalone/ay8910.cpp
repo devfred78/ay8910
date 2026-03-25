@@ -790,3 +790,26 @@ void ay8910_device::set_type(psg_type_t psg_type)
 		m_par_env = &ym2149_param_env;
 	}
 }
+
+std::vector<short> ay8910_device::generate(int num_samples, int sample_rate)
+{
+    std::vector<short> final_samples;
+    final_samples.reserve(num_samples);
+
+    sound_stream stream;
+    stream.set_sample_rate(sample_rate);
+
+    int samples_generated = 0;
+    while (samples_generated < num_samples) {
+        int samples_to_generate = std::min(1024, num_samples - samples_generated);
+        stream.update(samples_to_generate);
+        sound_stream_update(stream);
+
+        const auto& buffer = stream.get_buffer();
+        for (const auto& sample : buffer) {
+            final_samples.push_back(static_cast<short>(sample * 32767.0));
+        }
+        samples_generated += samples_to_generate;
+    }
+    return final_samples;
+}
