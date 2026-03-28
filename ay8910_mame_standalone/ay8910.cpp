@@ -807,7 +807,20 @@ std::vector<short> ay8910_device::generate(int num_samples, int sample_rate)
 
         const auto& buffer = stream.get_buffer();
         for (const auto& sample : buffer) {
-            final_samples.push_back(static_cast<short>(sample * 32767.0));
+            double s = sample;
+            // The MAME legacy 3D table mixes 3 channels resulting in values up to 3.0.
+            // We must scale it back down and remove the DC offset to prevent integer overflow
+            // which causes severe crackling/distortion.
+            if (m_flags & AY8910_LEGACY_OUTPUT) {
+                s /= 3.0; // scale 0..3 down to 0..1
+            }
+            s = s * 2.0 - 1.0; // Center around 0 (-1 to 1) to remove DC offset
+
+            // Clamp to avoid any accidental wrap-around
+            if (s > 1.0) s = 1.0;
+            if (s < -1.0) s = -1.0;
+
+            final_samples.push_back(static_cast<short>(s * 32767.0));
         }
         samples_generated += samples_to_generate;
     }
