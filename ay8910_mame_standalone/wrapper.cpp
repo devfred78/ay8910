@@ -18,8 +18,9 @@ PYBIND11_MODULE(ay8910_standalone, m) {
     m.attr("AY8910_RESISTOR_OUTPUT") = py::int_(AY8910_RESISTOR_OUTPUT);
 
     py::class_<ay8910_device>(m, "ay8910")
+        // We cast PSG_DEFAULT to int so pybind11 doesn't need the config_t enum exposed
         .def(py::init<ay8910_device::psg_type_t, int, int, int, int>(),
-             py::arg("psg_type"), py::arg("clock"), py::arg("streams"), py::arg("ioports"), py::arg("feature") = ay8910_device::PSG_DEFAULT)
+             py::arg("psg_type"), py::arg("clock"), py::arg("streams"), py::arg("ioports"), py::arg("feature") = static_cast<int>(ay8910_device::PSG_DEFAULT))
         .def("start", &ay8910_device::start)
         .def("reset", &ay8910_device::reset)
         .def("set_flags", &ay8910_device::set_flags)

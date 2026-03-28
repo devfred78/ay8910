@@ -4,15 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Initial commit">
-      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone/wrapper.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/AY8910.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/AY8910.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="First wrapper creation">
+      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone/test.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,7 +79,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774473070766</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="First wrapper creation">
+      <option name="closed" value="true" />
+      <created>1774474764750</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1774474764750</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -100,6 +103,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Initial commit" />
-    <option name="LAST_COMMIT_MESSAGE" value="Initial commit" />
+    <MESSAGE value="First wrapper creation" />
+    <option name="LAST_COMMIT_MESSAGE" value="First wrapper creation" />
   </component>
 </project>
