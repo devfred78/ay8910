@@ -4,6 +4,14 @@ import os
 import wave
 import ay8910_standalone as ay
 
+# We need to add the lhafile library to handle compressed .ym files
+try:
+    import lhafile
+except ImportError:
+    print("ERROR: The 'lhafile' library is not installed.", file=sys.stderr)
+    print("Please install it by running: pip install lhafile", file=sys.stderr)
+    sys.exit(1)
+
 def read_nt_string(data, offset):
     """Reads a null-terminated string from bytes."""
     end = data.find(b'\0', offset)
@@ -24,17 +32,30 @@ def play_ym(filename, output_wav):
         print("Error: File too small.")
         return
 
-    # Check for LHA compression signature
-    # Most .ym files downloaded from the internet are actually LHA archives
+    # Check for LHA compression signature and decompress in-memory if found
     if len(data) > 6 and b'-lh' in data[2:6]:
-        print("\n" + "="*60)
-        print(f" ERROR: The file '{filename}' is LHA compressed!")
-        print("="*60)
-        print(" Most .ym files from the internet are LHA archives renamed to .ym.")
-        print(" Please extract it using 7-Zip, WinRAR, or an LHA unarchiver first.")
-        print(" Once extracted, run this script on the uncompressed file.")
-        print("="*60 + "\n")
-        return
+        print("LHA compression detected. Attempting to decompress in-memory...")
+        try:
+            lha_archive = lhafile.LhaFile(filename)
+            
+            # Find the largest file in the archive, which is almost always the music data.
+            best_candidate = None
+            max_size = -1
+            for info in lha_archive.infolist():
+                if info.file_size > max_size:
+                    max_size = info.file_size
+                    best_candidate = info.filename
+            
+            if best_candidate:
+                print(f"Extracting '{best_candidate}' from archive...")
+                data = lha_archive.read(best_candidate)
+            else:
+                print("Error: Could not find a valid file inside the LHA archive.")
+                return
+
+        except Exception as e:
+            print(f"Error during LHA decompression: {e}")
+            return
 
     header_id = data[0:4]
     
@@ -61,12 +82,11 @@ def play_ym(filename, output_wav):
         
         offset = 34
         
-        # Skip digidrums (Not supported in this basic player)
+        # Skip digidrums
         for _ in range(ndigidrums):
             size = struct.unpack('>I', data[offset:offset+4])[0]
             offset += 4 + size
             
-        # Read metadata strings
         song_name, offset = read_nt_string(data, offset)
         author, offset = read_nt_string(data, offset)
         comment, offset = read_nt_string(data, offset)
@@ -86,7 +106,7 @@ def play_ym(filename, output_wav):
         print(f"Frames : {nframes} ({nframes/fps:.2f} seconds)")
         
     else:
-        print(f"Error: Unsupported YM format '{header_id}'. Only YM3b, YM5! and YM6! are supported.")
+        print(f"Error: Unsupported YM format '{header_id}'.")
         return
 
     # --- Parse register data ---
@@ -114,7 +134,6 @@ def play_ym(filename, output_wav):
     # --- Initialize AY8910 Emulator ---
     sample_rate = 44100
     
-    # Check if clock is bizarre, default to 2MHz if so
     if clock < 1000000 or clock > 4000000:
         print(f"Warning: Bizarre clock rate ({clock} Hz) detected. Forcing 2 MHz.")
         clock = 2000000
@@ -129,19 +148,15 @@ def play_ym(filename, output_wav):
     samples_per_frame = sample_rate / fps
     all_samples = []
     
-    # We use a fractional accumulator to handle non-integer samples per frame (e.g. 44100 / 50 = 882)
     sample_accumulator = 0.0
 
     for i in range(nframes):
         frame = frames[i]
         
-        # Write to AY-3-8910 registers 0 to 13 
-        # (14 and 15 are IO ports, usually not needed for sound)
         for r in range(14):
             psg.address_w(r)
             psg.data_w(frame[r])
             
-        # Calculate exactly how many samples to generate for this specific frame
         sample_accumulator += samples_per_frame
         samples_to_generate = int(sample_accumulator)
         sample_accumulator -= samples_to_generate
@@ -149,7 +164,6 @@ def play_ym(filename, output_wav):
         if samples_to_generate > 0:
             all_samples.extend(psg.generate(samples_to_generate, sample_rate))
             
-        # Update progress bar
         if i % fps == 0:
             sys.stdout.write(f"\rProgress: {i//fps}s / {nframes//fps}s")
             sys.stdout.flush()

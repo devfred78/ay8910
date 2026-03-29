@@ -4,11 +4,9 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Fix some compilation issues. Work correctly only under MSYS2 terminal.">
-      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" afterDir="false" />
+    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Introduce YM player">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -99,7 +97,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774726456470</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Fix clipping issue">
+      <option name="closed" value="true" />
+      <created>1774730053209</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1774730053209</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Introduce YM player">
+      <option name="closed" value="true" />
+      <created>1774730078692</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1774730078692</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -117,6 +131,8 @@
     <MESSAGE value="Initial commit" />
     <MESSAGE value="First wrapper creation" />
     <MESSAGE value="Fix some compilation issues. Work correctly only under MSYS2 terminal." />
-    <option name="LAST_COMMIT_MESSAGE" value="Fix some compilation issues. Work correctly only under MSYS2 terminal." />
+    <MESSAGE value="Fix clipping issue" />
+    <MESSAGE value="Introduce YM player" />
+    <option name="LAST_COMMIT_MESSAGE" value="Introduce YM player" />
   </component>
 </project>
