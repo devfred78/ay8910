@@ -429,7 +429,7 @@ void ay8910_device::sound_stream_update(sound_stream &stream)
 		for (int chan = 0; chan < NUM_CHANNELS; chan++)
 		{
 			tone = &m_tone[chan];
-			m_vol_enabled[chan] = (tone->output || tone_enable(chan)) && (noise_output() || noise_enable(chan));
+			m_vol_enabled[chan] = (tone->output | tone_enable(chan)) & (noise_output() | noise_enable(chan));
 		}
 
 		for (int chan = 0; chan < NUM_CHANNELS; chan++)
@@ -596,8 +596,14 @@ void ay8910_device::ay8910_reset_ym()
 	m_count_noise = 0;
 	m_prescale_noise = 0;
 	m_last_enable = 0xc0; // force a write
-	for (int i = 0; i < AY_PORTA; i++)
-		ay8910_write_reg(i,0);
+
+    // Reset all registers to 0
+	for (int i = 0; i < 16; i++)
+		m_regs[i] = 0;
+
+    // Explicitly set the mixer to a silent state (all channels off)
+    m_regs[AY_ENABLE] = 0x3F;
+
 	m_ready = 1;
 }
 
