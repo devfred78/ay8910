@@ -5,10 +5,6 @@
 #include "ay8910.h"
 #include <cstring>
 
-// #define LOG_IGNORED_WRITES (1U << 1)
-// #define LOG_WARNINGS       (1U << 2)
-// #define LOG_OUTPUT_CONFIG  (1U << 3)
-// #define VERBOSE (LOG_WARNINGS)
 #include "logmacro.h"
 
 /*************************************
@@ -433,7 +429,7 @@ void ay8910_device::sound_stream_update(sound_stream &stream)
 		for (int chan = 0; chan < NUM_CHANNELS; chan++)
 		{
 			tone = &m_tone[chan];
-			m_vol_enabled[chan] = (tone->output | tone_enable(chan)) & (noise_output() | noise_enable(chan));
+			m_vol_enabled[chan] = (tone->output || tone_enable(chan)) && (noise_output() || noise_enable(chan));
 		}
 
 		for (int chan = 0; chan < NUM_CHANNELS; chan++)

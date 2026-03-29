@@ -4,31 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Add lhafile library">
-      <change afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ay8910_cpp_lib/placeholder.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/ay8910.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/ay8910.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/emu.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/logmacro.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/placeholder.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/test.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/scripts/ym_player.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ay8910_wrapper/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ay8910_wrapper/placeholder.txt" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/ay8910_wrapper/wrapper.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/placeholder.txt" afterDir="false" />
+    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Changes in uv.lock">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/Makefile" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/emu.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/emu.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/logmacro.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/logmacro.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/test.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/wrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/wrapper.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/ym_player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -152,7 +131,31 @@
       <option name="project" value="LOCAL" />
       <updated>1774778145759</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="Apply modern project structure">
+      <option name="closed" value="true" />
+      <created>1774780664418</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1774780664418</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Add uv.lock">
+      <option name="closed" value="true" />
+      <created>1774780707834</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1774780707834</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Changes in uv.lock">
+      <option name="closed" value="true" />
+      <created>1774781126412</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1774781126412</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -174,6 +177,9 @@
     <MESSAGE value="Introduce YM player" />
     <MESSAGE value="Add ability to open an LHA-compressed YM file" />
     <MESSAGE value="Add lhafile library" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add lhafile library" />
+    <MESSAGE value="Apply modern project structure" />
+    <MESSAGE value="Add uv.lock" />
+    <MESSAGE value="Changes in uv.lock" />
+    <option name="LAST_COMMIT_MESSAGE" value="Changes in uv.lock" />
   </component>
 </project>

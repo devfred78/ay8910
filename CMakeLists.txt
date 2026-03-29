@@ -1,4 +1,8 @@
 cmake_minimum_required(VERSION 3.15)
+
+# Silence the pybind11 deprecation warning
+cmake_policy(SET CMP0148 NEW)
+
 project(ay8910_wrapper CXX)
 
 # --- C++ Standard ---
