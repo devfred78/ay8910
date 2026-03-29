@@ -20,7 +20,8 @@ classifiers = [
     "Programming Language :: C++",
 ]
 dependencies = [
-    "lhafile"
+    "lhafile",
+    "numpy>=1.24.4",
 ]
 
 [project.scripts]
