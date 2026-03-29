@@ -3,4 +3,6 @@ name = "ay8910"
 version = "0.1.0"
 description = "Add your description here"
 requires-python = ">=3.14"
-dependencies = []
+dependencies = [
+    "lhafile>=0.3.1",
+]
