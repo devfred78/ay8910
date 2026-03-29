@@ -3,6 +3,8 @@ import sys
 import os
 import wave
 import ay8910_wrapper as ay
+import time
+import argparse
 
 # We need to add the lhafile library to handle compressed .ym files
 try:
@@ -12,6 +14,13 @@ except ImportError:
     print("Please install it by running: pip install lhafile", file=sys.stderr)
     sys.exit(1)
 
+# Use sounddevice for live playback (easier to install than pyaudio)
+try:
+    import sounddevice as sd
+    import numpy as np
+except ImportError:
+    sd = None
+
 def read_nt_string(data, offset):
     """Reads a null-terminated string from bytes."""
     end = data.find(b'\0', offset)
@@ -19,7 +28,13 @@ def read_nt_string(data, offset):
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
-def play_ym(filename, output_wav):
+def play_ym(filename, output_wav, live_play):
+    if live_play and sd is None:
+        print("ERROR: The 'sounddevice' and/or 'numpy' libraries are not installed.", file=sys.stderr)
+        print("Live playback is not available. Please install them by running:", file=sys.stderr)
+        print("uv pip install sounddevice numpy", file=sys.stderr)
+        return
+
     print(f"Reading {filename}...")
     try:
         with open(filename, 'rb') as f:
@@ -37,22 +52,13 @@ def play_ym(filename, output_wav):
         print("LHA compression detected. Attempting to decompress in-memory...")
         try:
             lha_archive = lhafile.LhaFile(filename)
-            
-            # Find the largest file in the archive, which is almost always the music data.
-            best_candidate = None
-            max_size = -1
-            for info in lha_archive.infolist():
-                if info.file_size > max_size:
-                    max_size = info.file_size
-                    best_candidate = info.filename
-            
+            best_candidate = max(lha_archive.infolist(), key=lambda f: f.file_size, default=None)
             if best_candidate:
-                print(f"Extracting '{best_candidate}' from archive...")
-                data = lha_archive.read(best_candidate)
+                print(f"Extracting '{best_candidate.filename}' from archive...")
+                data = lha_archive.read(best_candidate.filename)
             else:
                 print("Error: Could not find a valid file inside the LHA archive.")
                 return
-
         except Exception as e:
             print(f"Error during LHA decompression: {e}")
             return
@@ -68,7 +74,7 @@ def play_ym(filename, output_wav):
     
     if header_id in (b'YM5!', b'YM6!'):
         if data[4:12] != b'LeOnArD!':
-            print("Error: Invalid YM5/YM6 signature (LeOnArD! not found).")
+            print("Error: Invalid YM5/YM6 signature.")
             return
             
         nframes = struct.unpack('>I', data[12:16])[0]
@@ -79,10 +85,9 @@ def play_ym(filename, output_wav):
         fps = struct.unpack('>H', data[26:28])[0]
         loop_frame = struct.unpack('>I', data[28:32])[0]
         add_size = struct.unpack('>H', data[32:34])[0]
-        
+
         offset = 34
         
-        # Skip digidrums
         for _ in range(ndigidrums):
             size = struct.unpack('>I', data[offset:offset+4])[0]
             offset += 4 + size
@@ -97,43 +102,25 @@ def play_ym(filename, output_wav):
         print(f"Frames : {nframes} ({nframes/fps:.2f} seconds)")
         print(f"Clock  : {clock} Hz, FPS: {fps}")
         
-    elif header_id == b'YM3b':
-        interleaved = True
-        offset = 4
-        num_regs = 14
-        nframes = (len(data) - 4) // 14
-        print(f"Format : YM3b")
-        print(f"Frames : {nframes} ({nframes/fps:.2f} seconds)")
-        
     else:
-        print(f"Error: Unsupported YM format '{header_id}'.")
+        print(f"Error: Unsupported YM format '{header_id}'. Only YM5! and YM6! are supported for now.")
         return
 
     # --- Parse register data ---
     frames = []
-    
     if interleaved:
         if offset + num_regs * nframes > len(data):
             print("Warning: File truncated, reducing frame count.")
             nframes = (len(data) - offset) // num_regs
-
         for i in range(nframes):
-            frame_regs = []
-            for r in range(num_regs):
-                val = data[offset + r * nframes + i]
-                frame_regs.append(val)
+            frame_regs = [data[offset + r * nframes + i] for r in range(num_regs)]
             frames.append(frame_regs)
     else:
-        if offset + num_regs * nframes > len(data):
-            nframes = (len(data) - offset) // num_regs
-            
-        for i in range(nframes):
-            frame_regs = list(data[offset + i * num_regs : offset + (i+1) * num_regs])
-            frames.append(frame_regs)
+        print("Error: Non-interleaved YM format is not supported.")
+        return
 
     # --- Initialize AY8910 Emulator ---
     sample_rate = 44100
-    
     if clock < 1000000 or clock > 4000000:
         print(f"Warning: Bizarre clock rate ({clock} Hz) detected. Forcing 2 MHz.")
         clock = 2000000
@@ -143,51 +130,60 @@ def play_ym(filename, output_wav):
     psg.start()
     psg.reset()
 
-    # --- Render Audio ---
-    print("\nRendering audio...")
-    samples_per_frame = sample_rate / fps
-    all_samples = []
-    
-    sample_accumulator = 0.0
+    if live_play:
+        # --- Live Playback using sounddevice ---
+        print("\nPlaying live... Press Ctrl+C to stop.")
+        
+        def callback(outdata, frames, time, status):
+            if status:
+                print(status, file=sys.stderr)
+            
+            chunk = psg.generate(frames, sample_rate)
+            if len(chunk) < frames:
+                chunk.extend([0] * (frames - len(chunk)))
 
-    for i in range(nframes):
-        frame = frames[i]
-        
-        for r in range(14):
-            psg.address_w(r)
-            psg.data_w(frame[r])
-            
-        sample_accumulator += samples_per_frame
-        samples_to_generate = int(sample_accumulator)
-        sample_accumulator -= samples_to_generate
-        
-        if samples_to_generate > 0:
-            all_samples.extend(psg.generate(samples_to_generate, sample_rate))
-            
-        if i % fps == 0:
-            sys.stdout.write(f"\rProgress: {i//fps}s / {nframes//fps}s")
-            sys.stdout.flush()
-            
-    print(f"\rProgress: {nframes//fps}s / {nframes//fps}s")
-    print("Rendering done!")
+            outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, 1)
 
-    # --- Write WAV file ---
-    print(f"Writing to {output_wav}...")
-    with wave.open(output_wav, 'wb') as f:
-        f.setnchannels(1)
-        f.setsampwidth(2)
-        f.setframerate(sample_rate)
-        packed = struct.pack('<' + 'h' * len(all_samples), *all_samples)
-        f.writeframes(packed)
-        
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 ym_player.py <song.ym> [output.wav]")
-        print("Example: python3 ym_player.py my_music.ym")
+        try:
+            with sd.OutputStream(samplerate=sample_rate, channels=1, dtype='int16', callback=callback):
+                for i in range(nframes):
+                    frame = frames[i]
+                    for r in range(14):
+                        psg.address_w(r)
+                        psg.data_w(frame[r])
+                    
+                    # The callback handles generation, we just need to wait
+                    time.sleep(1.0 / fps)
+        except KeyboardInterrupt:
+            print("\nPlayback stopped.")
+        except Exception as e:
+            print(f"\nAn error occurred during playback: {e}")
+            
     else:
-        ym_file = sys.argv[1]
-        wav_file = sys.argv[2] if len(sys.argv) > 2 else "output_ym.wav"
-        play_ym(ym_file, wav_file)
+        # --- Render to File ---
+        print("\nRendering audio to file...")
+        total_samples = int((nframes / fps) * sample_rate)
+        all_samples = psg.generate(total_samples, sample_rate)
+                
+        print("Rendering done!")
+
+        print(f"Writing to {output_wav}...")
+        with wave.open(output_wav, 'wb') as f:
+            f.setnchannels(1)
+            f.setsampwidth(2)
+            f.setframerate(sample_rate)
+            packed = struct.pack('<' + 'h' * len(all_samples), *all_samples)
+            f.writeframes(packed)
+
+def main():
+    parser = argparse.ArgumentParser(description="Play or render an AY/YM chiptune file.")
+    parser.add_argument("input_file", help="Path to the .ym file.")
+    parser.add_argument("-p", "--play", action="store_true", help="Play the file live instead of rendering to WAV.")
+    parser.add_argument("-o", "--output", default="output_ym.wav", help="Output WAV file name (default: output_ym.wav).")
+    
+    args = parser.parse_args()
+    
+    play_ym(args.input_file, args.output, args.play)
 
 if __name__ == "__main__":
     main()
