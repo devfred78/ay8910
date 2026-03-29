@@ -4,10 +4,11 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Add unit tests">
-      <change beforePath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/tests/test_ay8910.py" beforeDir="false" afterPath="$PROJECT_DIR$/tests/test_ay8910.py" afterDir="false" />
+    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Add REFERENCE file">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/scripts/ym_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/scripts/ym_player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/uv.lock" beforeDir="false" afterPath="$PROJECT_DIR$/uv.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -17,7 +18,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="reading-YM-file" />
+        <entry key="$PROJECT_DIR$" value="main" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -29,12 +30,12 @@
     &quot;assignee&quot;: &quot;devfred78&quot;
   }
 }</component>
-  <component name="GithubPullRequestsUISettings">{
-  &quot;selectedUrlAndAccountId&quot;: {
-    &quot;url&quot;: &quot;https://github.com/devfred78/ay8910.git&quot;,
-    &quot;accountId&quot;: &quot;87a83ee1-307f-4e6e-8d15-986db1e3a0a9&quot;
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/devfred78/ay8910.git",
+    "accountId": "87a83ee1-307f-4e6e-8d15-986db1e3a0a9"
   }
-}</component>
+}]]></component>
   <component name="HighlightingSettingsPerFile">
     <setting file="file://$PROJECT_DIR$/ay8910_mame_standalone/test.py" root0="SKIP_INSPECTION" />
   </component>
@@ -50,20 +51,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.propVCSSupport.DirectoryMappings&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "reading-YM-file",
+    "junie.onboarding.icon.badge.shown": "true",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "to.speed.mode.migration.done": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -183,13 +184,13 @@
       <option name="project" value="LOCAL" />
       <updated>1774801713007</updated>
     </task>
-    <task id="LOCAL-00014" summary="Add unit tests">
+    <task id="LOCAL-00014" summary="Add REFERENCE file">
       <option name="closed" value="true" />
-      <created>1774805587566</created>
+      <created>1774801843230</created>
       <option name="number" value="00014" />
       <option name="presentableId" value="LOCAL-00014" />
       <option name="project" value="LOCAL" />
-      <updated>1774805587566</updated>
+      <updated>1774801843230</updated>
     </task>
     <option name="localTasksCounter" value="15" />
     <servers />
@@ -219,7 +220,7 @@
     <MESSAGE value="Fix warnings during building phase" />
     <MESSAGE value="Add license file" />
     <MESSAGE value="Improve README file" />
-    <MESSAGE value="Add unit tests" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add unit tests" />
+    <MESSAGE value="Add REFERENCE file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add REFERENCE file" />
   </component>
 </project>
