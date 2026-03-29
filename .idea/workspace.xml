@@ -4,8 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Add license file">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Improve README file">
+      <change afterPath="$PROJECT_DIR$/REFERENCE.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -169,7 +169,15 @@
       <option name="project" value="LOCAL" />
       <updated>1774800479640</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Improve README file">
+      <option name="closed" value="true" />
+      <created>1774801713007</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1774801713007</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -196,6 +204,7 @@
     <MESSAGE value="Changes in uv.lock" />
     <MESSAGE value="Fix warnings during building phase" />
     <MESSAGE value="Add license file" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add license file" />
+    <MESSAGE value="Improve README file" />
+    <option name="LAST_COMMIT_MESSAGE" value="Improve README file" />
   </component>
 </project>

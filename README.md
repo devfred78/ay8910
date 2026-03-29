@@ -71,6 +71,8 @@ print("Generated 'tone_output.wav'")
 
 ```
 
+For a complete list of all available functions, classes, and constants, please see the [API Reference](REFERENCE.md).
+
 ## For Developers: Building from Source
 
 If you want to modify the code, you need to build the project from source.
