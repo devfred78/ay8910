@@ -98,3 +98,20 @@ If you want to modify the code, you need to build the project from source.
     uv build
     ```
     The final `.whl` file will be in the `dist/` directory.
+
+## Running Tests
+
+The project includes a suite of unit tests to verify the functionality of the wrapper and the emulation core.
+
+1.  **Install test dependencies:**
+    The tests require `numpy`.
+    ```sh
+    uv pip install numpy
+    ```
+
+2.  **Run the tests:**
+    From the root directory of the project, run the `unittest` discovery command:
+    ```sh
+    uv run python -m unittest discover -s tests
+    ```
+    This will find and execute all tests in the `tests/` directory.
