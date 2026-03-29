@@ -2,32 +2,97 @@
 
 This project contains a standalone C++ library for the AY-3-8910 sound chip, originally derived from the MAME project, and a Python wrapper to make it accessible from Python scripts.
 
-## Features
+It allows for the programmatic generation of chiptune-style audio and the playback of `.ym` music files.
 
-- C++ library for AY-3-8910 emulation.
-- Python wrapper using `pybind11`.
-- Example scripts to generate music and play `.ym` files.
+## Installation
 
-## How to Build
+1.  **Download the Wheel File**: Go to the [Releases](https://github.com/devfrd78/ay8910/releases) page of this project and download the latest `.whl` file for your system (e.g., `ay8910_wrapper-0.1.0-cp314-cp314-win_amd64.whl`).
 
-This project uses a modern Python build system with `scikit-build-core` and `cmake`.
-
-1.  **Create and activate a virtual environment:**
+2.  **Install with `pip`**: Open a terminal and use `pip` (or `uv pip`) to install the downloaded file:
     ```sh
+    # Make sure you are in the same directory as the downloaded .whl file
+    # or provide the full path to it.
+    pip install ay8910_wrapper-0.1.0-cp314-cp314-win_amd64.whl
+    ```
+    This will also install the necessary dependency (`lhafile`).
+
+## Basic Usage in Python
+
+Here is a simple example of how to use the `ay8910_wrapper` to generate a single tone and save it as a WAV file.
+
+```python
+import ay8910_wrapper as ay
+import wave
+import struct
+
+# Helper to write WAV files
+def write_wav(filename, samples, sample_rate):
+    with wave.open(filename, 'wb') as f:
+        f.setnchannels(1)
+        f.setsampwidth(2)
+        f.setframerate(sample_rate)
+        packed_samples = struct.pack('<' + 'h' * len(samples), *samples)
+        f.writeframes(packed_samples)
+
+# --- Main Program ---
+
+# 1. Initialize the emulator
+clock = 2000000  # 2 MHz, a common clock for this chip
+sample_rate = 44100
+psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
+psg.set_flags(ay.AY8910_LEGACY_OUTPUT)
+psg.start()
+psg.reset()
+
+# 2. Program the chip registers
+# Enable Tone on Channel A, disable everything else
+psg.address_w(7)
+psg.data_w(0b00111110)
+
+# Set Channel A frequency to Middle C (261.63 Hz)
+period = int(clock / (16 * 261.63))
+psg.address_w(0)  # Fine tune
+psg.data_w(period & 0xFF)
+psg.address_w(1)  # Coarse tune
+psg.data_w((period >> 8) & 0x0F)
+
+# Set Channel A volume to max
+psg.address_w(8)
+psg.data_w(15)
+
+# 3. Generate audio
+# Generate 2 seconds of audio
+num_samples = sample_rate * 2
+samples = psg.generate(num_samples, sample_rate)
+
+# 4. Save the result
+write_wav("tone_output.wav", samples, sample_rate)
+print("Generated 'tone_output.wav'")
+
+```
+
+## For Developers: Building from Source
+
+If you want to modify the code, you need to build the project from source.
+
+1.  **Clone the repository and create a virtual environment:**
+    ```sh
+    git clone https://github.com/your-username/your-repo.git
+    cd your-repo
     uv venv
-    source .venv/bin/activate  # or .venv\Scripts\activate.bat on Windows
+    # On Windows PowerShell
+    .venv\Scripts\activate
+    # On Linux/macOS/MSYS2
+    # source .venv/bin/activate
     ```
 
-2.  **Install the project in editable mode:**
+2.  **Install in editable mode:**
+    This command will compile the C++ core and make the Python wrapper available in your environment.
     ```sh
     uv pip install -e .
     ```
-
-## How to Use
-
-Once installed, you can run the example scripts located in the `scripts/` directory.
-
-For example, to play a YM file:
-```sh
-python scripts/ym_player.py path/to/your/music.ym
-```
+3.  **Build the wheel for distribution:**
+    ```sh
+    uv build
+    ```
+    The final `.whl` file will be in the `dist/` directory.
