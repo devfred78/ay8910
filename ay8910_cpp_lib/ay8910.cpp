@@ -5,10 +5,10 @@
 #include "ay8910.h"
 #include <cstring>
 
-#define LOG_IGNORED_WRITES (1U << 1)
-#define LOG_WARNINGS       (1U << 2)
-#define LOG_OUTPUT_CONFIG  (1U << 3)
-#define VERBOSE (LOG_WARNINGS)
+// #define LOG_IGNORED_WRITES (1U << 1)
+// #define LOG_WARNINGS       (1U << 2)
+// #define LOG_OUTPUT_CONFIG  (1U << 3)
+// #define VERBOSE (LOG_WARNINGS)
 #include "logmacro.h"
 
 /*************************************

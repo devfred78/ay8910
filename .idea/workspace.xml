@@ -4,9 +4,32 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Introduce YM player">
+    <list default="true" id="0bb5f7f0-3f6d-4e8a-9f01-251d2f1c5cf9" name="Changes" comment="Add lhafile library">
+      <change afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ay8910_cpp_lib/placeholder.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/ay8910.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/ay8910.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/emu.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/logmacro.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/placeholder.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/test.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/scripts/ym_player.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ay8910_wrapper/__init__.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ay8910_wrapper/placeholder.txt" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/ay8910_wrapper/wrapper.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/placeholder.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/Makefile" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/Makefile" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ay8910.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/ay8910.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/emu.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/emu.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/logmacro.h" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_cpp_lib/logmacro.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/main.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/test.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/test.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/wrapper.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/wrapper.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/ay8910_mame_standalone/ym_player.py" beforeDir="false" afterPath="$PROJECT_DIR$/ay8910_mame_standalone [TO BE DELETED]/ym_player.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/pyproject.toml" beforeDir="false" afterPath="$PROJECT_DIR$/pyproject.toml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -44,20 +67,20 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.MCP Project settings loaded&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
-    &quot;com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
-    &quot;junie.onboarding.icon.badge.shown&quot;: &quot;true&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;to.speed.mode.migration.done&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "ModuleVcsDetector.initialDetectionPerformed": "true",
+    "RunOnceActivity.MCP Project settings loaded": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "RunOnceActivity.TerminalTabsStorage.copyFrom.TerminalArrangementManager.252": "true",
+    "RunOnceActivity.git.unshallow": "true",
+    "com.intellij.ml.llm.matterhorn.ej.ui.settings.DefaultModelSelectionForGA.v1": "true",
+    "git-widget-placeholder": "main",
+    "junie.onboarding.icon.badge.shown": "true",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings",
+    "to.speed.mode.migration.done": "true"
   }
-}</component>
+}]]></component>
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
@@ -113,7 +136,23 @@
       <option name="project" value="LOCAL" />
       <updated>1774730078692</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="Add ability to open an LHA-compressed YM file">
+      <option name="closed" value="true" />
+      <created>1774778054034</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1774778054034</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Add lhafile library">
+      <option name="closed" value="true" />
+      <created>1774778145758</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1774778145759</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="Vcs.Log.Tabs.Properties">
@@ -133,6 +172,8 @@
     <MESSAGE value="Fix some compilation issues. Work correctly only under MSYS2 terminal." />
     <MESSAGE value="Fix clipping issue" />
     <MESSAGE value="Introduce YM player" />
-    <option name="LAST_COMMIT_MESSAGE" value="Introduce YM player" />
+    <MESSAGE value="Add ability to open an LHA-compressed YM file" />
+    <MESSAGE value="Add lhafile library" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add lhafile library" />
   </component>
 </project>

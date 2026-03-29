@@ -1,8 +1,33 @@
+[build-system]
+requires = ["scikit-build-core", "cmake", "pybind11"]
+build-backend = "scikit_build_core.build"
+
 [project]
-name = "ay8910"
+name = "ay8910_wrapper"
 version = "0.1.0"
-description = "Add your description here"
-requires-python = ">=3.14"
-dependencies = [
-    "lhafile>=0.3.1",
+description = "A Python wrapper for a standalone AY-3-8910 emulator core from MAME."
+readme = "README.md"
+requires-python = ">=3.8"
+license = { text = "BSD-3-Clause" }
+authors = [
+    { name = "devfred78", email = "devfred78@gmail.com" }
 ]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Topic :: Multimedia :: Sound/Audio :: Emulation",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: C++",
+]
+dependencies = [
+    "lhafile"
+]
+
+[project.scripts]
+play_ym = "scripts.ym_player:main"
+
+[tool.scikit-build]
+cmake.source-dir = "."
+cmake.args = ["-DCMAKE_BUILD_TYPE=Release"]
+wheel.packages = ["src/ay8910_wrapper"]
+install.strip = false

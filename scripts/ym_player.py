@@ -2,7 +2,7 @@ import struct
 import sys
 import os
 import wave
-import ay8910_standalone as ay
+import ay8910_wrapper as ay
 
 # We need to add the lhafile library to handle compressed .ym files
 try:
@@ -180,7 +180,7 @@ def play_ym(filename, output_wav):
         packed = struct.pack('<' + 'h' * len(all_samples), *all_samples)
         f.writeframes(packed)
         
-if __name__ == "__main__":
+def main():
     if len(sys.argv) < 2:
         print("Usage: python3 ym_player.py <song.ym> [output.wav]")
         print("Example: python3 ym_player.py my_music.ym")
@@ -188,3 +188,6 @@ if __name__ == "__main__":
         ym_file = sys.argv[1]
         wav_file = sys.argv[2] if len(sys.argv) > 2 else "output_ym.wav"
         play_ym(ym_file, wav_file)
+
+if __name__ == "__main__":
+    main()

@@ -4,7 +4,7 @@
 
 namespace py = pybind11;
 
-PYBIND11_MODULE(ay8910_standalone, m) {
+PYBIND11_MODULE(ay8910_wrapper, m) {
     m.doc() = "Python wrapper for the standalone AY-3-8910 emulator";
 
     py::enum_<ay8910_device::psg_type_t>(m, "psg_type")

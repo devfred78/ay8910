@@ -1,4 +1,4 @@
-import ay8910_standalone as ay
+import ay8910_wrapper as ay
 import wave
 import struct
 import math
