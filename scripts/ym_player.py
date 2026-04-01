@@ -162,10 +162,26 @@ def play_ym(filename, output_wav, live_play):
     else:
         # --- Render to File ---
         print("\nRendering audio to file...")
-        total_samples = int((nframes / fps) * sample_rate)
-        all_samples = psg.generate(total_samples, sample_rate)
+        all_samples = []
+        
+        for i in range(nframes):
+            frame = frames[i]
+            for r in range(14):
+                psg.address_w(r)
+                psg.data_w(frame[r])
+            
+            # Use floating point math to keep track of total samples needed up to this frame
+            target_total_samples = int((i + 1) * sample_rate / fps)
+            samples_to_generate = target_total_samples - len(all_samples)
+            
+            if samples_to_generate > 0:
+                chunk = psg.generate(samples_to_generate, sample_rate)
+                all_samples.extend(chunk)
+            
+            if i % 100 == 0:
+                print(f"Progress: {i}/{nframes} frames", end='\r')
                 
-        print("Rendering done!")
+        print("\nRendering done!")
 
         print(f"Writing to {output_wav}...")
         with wave.open(output_wav, 'wb') as f:
