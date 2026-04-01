@@ -79,7 +79,7 @@ If you want to modify the code, you need to build the project from source.
 
 1.  **Clone the repository and create a virtual environment:**
     ```sh
-    git clone https://github.com/your-username/your-repo.git
+    git clone https://github.com/devfred78/ay8910.git
     cd your-repo
     uv venv
     # On Windows PowerShell
