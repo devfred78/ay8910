@@ -31,6 +31,20 @@ chip.data_w(15)   # Max volume (non-envelope)
 
 # Generate 1 second of audio at 44.1kHz
 audio = chip.generate(44100, 44100)
+
+# Save to a WAV file
+import wave
+import struct
+
+with wave.open("output_mame.wav", "w") as wav_file:
+    # 1 channel (mono), 2 bytes per sample (16-bit), 44100Hz
+    wav_file.setnchannels(1)
+    wav_file.setsampwidth(2)
+    wav_file.setframerate(44100)
+    
+    # Pack the list of integers into binary 16-bit signed little-endian
+    data = struct.pack('<' + ('h' * len(audio)), *audio)
+    wav_file.writeframes(data)
 ```
 
 ### `ay8910(psg_type, clock, streams, ioports, feature)`
@@ -131,6 +145,21 @@ chip.data_w(15)
 # Generate 1 second of stereo audio
 # Returns 44100 * 2 = 88200 samples
 audio = chip.generate(44100)
+
+# Save to a WAV file
+import wave
+import struct
+
+with wave.open("output_cap32.wav", "w") as wav_file:
+    # 2 channels (stereo), 2 bytes per sample (16-bit), 44100Hz
+    wav_file.setnchannels(2)
+    wav_file.setsampwidth(2)
+    wav_file.setframerate(44100)
+    
+    # Pack the list of integers into binary 16-bit signed little-endian
+    # audio is already interleaved [L0, R0, L1, R1, ...]
+    data = struct.pack('<' + ('h' * len(audio)), *audio)
+    wav_file.writeframes(data)
 
 # audio[0] is Left sample 0
 # audio[1] is Right sample 0
