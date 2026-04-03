@@ -44,7 +44,14 @@ void ay8912_cap32::address_w(uint8_t addr) {
 }
 
 void ay8912_cap32::data_w(uint8_t data) {
-    switch (reg_latch) {
+    uint8_t old_latch = reg_latch;
+    reg_latch = reg_latch & 0x0F;
+    set_register(reg_latch, data);
+    reg_latch = old_latch;
+}
+
+void ay8912_cap32::set_register(int r, uint8_t data) {
+    switch (r & 0x0F) {
         case 0: regs.TonA = (regs.TonA & 0xFF00) | data; break;
         case 1: regs.TonA = (regs.TonA & 0x00FF) | ((data & 0x0F) << 8); break;
         case 2: regs.TonB = (regs.TonB & 0xFF00) | data; break;
@@ -59,7 +66,39 @@ void ay8912_cap32::data_w(uint8_t data) {
         case 11: regs.Envelope = (regs.Envelope & 0xFF00) | data; break;
         case 12: regs.Envelope = (regs.Envelope & 0x00FF) | (data << 8); break;
         case 13: update_env_type(data); break;
+        case 14: regs.PortA = data; break;
+        case 15: regs.PortB = data; break;
     }
+}
+
+uint8_t ay8912_cap32::get_register(int r) {
+    switch (r & 0x0F) {
+        case 0: return regs.TonA & 0xFF;
+        case 1: return (regs.TonA >> 8) & 0x0F;
+        case 2: return regs.TonB & 0xFF;
+        case 3: return (regs.TonB >> 8) & 0x0F;
+        case 4: return regs.TonC & 0xFF;
+        case 5: return (regs.TonC >> 8) & 0x0F;
+        case 6: return regs.Noise;
+        case 7: return regs.Mixer;
+        case 8: return regs.AmplA;
+        case 9: return regs.AmplB;
+        case 10: return regs.AmplC;
+        case 11: return regs.Envelope & 0xFF;
+        case 12: return (regs.Envelope >> 8) & 0xFF;
+        case 13: return regs.EnvType;
+        case 14: return regs.PortA;
+        case 15: return regs.PortB;
+    }
+    return 0;
+}
+
+std::vector<uint8_t> ay8912_cap32::get_registers() {
+    std::vector<uint8_t> res(16);
+    for (int i = 0; i < 16; i++) {
+        res[i] = get_register(i);
+    }
+    return res;
 }
 
 void ay8912_cap32::update_mixer(uint8_t val) {

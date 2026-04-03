@@ -31,6 +31,9 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
         .def("set_flags", &ay8910_device::set_flags)
         .def("address_w", &ay8910_device::address_w)
         .def("data_w", &ay8910_device::data_w)
+        .def("get_register", &ay8910_device::get_register, "Get register value")
+        .def("set_register", &ay8910_device::set_register, "Set register value and update internal state")
+        .def("get_registers", &ay8910_device::get_registers, "Get all registers as a list")
         .def("generate", &ay8910_device::generate,
              py::arg("num_samples"), py::arg("sample_rate"),
              "Generate a number of audio samples at a given sample rate");
@@ -41,6 +44,9 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
         .def("reset", &ay8912_cap32::reset)
         .def("address_w", &ay8912_cap32::address_w)
         .def("data_w", &ay8912_cap32::data_w)
+        .def("get_register", &ay8912_cap32::get_register, "Get register value")
+        .def("set_register", &ay8912_cap32::set_register, "Set register value and update internal state")
+        .def("get_registers", &ay8912_cap32::get_registers, "Get all registers as a list")
         .def("set_stereo_mix", &ay8912_cap32::set_stereo_mix,
              py::arg("al"), py::arg("ar"), py::arg("bl"), py::arg("br"), py::arg("cl"), py::arg("cr"),
              "Set stereo weights for channels A, B, and C")

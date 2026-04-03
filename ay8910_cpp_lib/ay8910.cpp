@@ -254,6 +254,15 @@ void ay8910_device::ay8910_write_reg(int r, int v)
 	if ((r & 0xf) == AY_EASHAPE) // shared register
 		r &= 0xf;
 
+    // Mask registers if not in expanded mode
+    if (!is_expanded_mode()) {
+        static const u8 masks[16] = {
+            0xff, 0x0f, 0xff, 0x0f, 0xff, 0x0f, 0x1f, 0xff,
+            0x1f, 0x1f, 0x1f, 0xff, 0xff, 0x0f, 0xff, 0xff
+        };
+        if (r < 16) v &= masks[r];
+    }
+
 	m_regs[r] = v;
 	u8 coarse;
 

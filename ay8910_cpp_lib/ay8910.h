@@ -93,6 +93,10 @@ public:
 	void address_w(u8 data);
 	void data_w(u8 data);
 
+    u8 get_register(int r) { return m_regs[r & 0x1f]; }
+    void set_register(int r, u8 v) { ay8910_write_reg(r & 0x1f, (int)v); }
+    std::vector<u8> get_registers() { return std::vector<u8>(m_regs, m_regs + 32); }
+
 	// /RES
 	void reset_w(u8 data = 0) { ay8910_reset_ym(); }
 
@@ -292,7 +296,9 @@ private:
 	// internal helpers
 	void set_type(psg_type_t psg_type);
 	inline sound_stream::sample_t mix_3D();
+public:
 	void ay8910_write_reg(int r, int v);
+private:
 	void build_mixer_table();
 	void ay8910_statesave();
 
@@ -334,4 +340,4 @@ private:
 	std::function<void(u8)> m_port_b_write_cb;
 };
 
-#endif // STANDALONE_AY8910_H
+#endif // ST

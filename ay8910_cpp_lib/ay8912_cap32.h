@@ -12,6 +12,11 @@ public:
     void reset();
     void address_w(uint8_t addr);
     void data_w(uint8_t data);
+
+    uint8_t get_register(int r);
+    void set_register(int r, uint8_t v);
+    std::vector<uint8_t> get_registers();
+
     std::vector<short> generate(int num_samples);
 
     // CPC specific mix settings (Left, Right)

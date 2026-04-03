@@ -85,6 +85,26 @@ Writes a value to the register previously selected by `.address_w()`.
 
 -   **`value` (`int`)**: The 8-bit value to write to the selected register.
 
+#### `.get_register(reg)`
+
+Directly reads the value of an internal register.
+
+-   **`reg` (`int`)**: The register index (0-31).
+-   **Returns**: `int` - The 8-bit register value.
+
+#### `.set_register(reg, value)`
+
+Directly writes a value to an internal register and updates the internal emulation state (e.g., period, volume).
+
+-   **`reg` (`int`)**: The register index (0-31).
+-   **`value` (`int`)**: The 8-bit value to write.
+
+#### `.get_registers()`
+
+Returns all internal registers as a list.
+
+-   **Returns**: `List[int]` - A list of 32 values representing the current state of the registers.
+
 #### `.generate(num_samples, sample_rate)`
 
 Generates a block of audio and returns it as a list of 16-bit signed integers.
@@ -181,10 +201,37 @@ Writes to the address latch.
 #### `.data_w(value)`
 Writes data to the selected register.
 
+#### `.get_register(reg)`
+
+Directly reads the value of an internal register.
+
+-   **`reg` (`int`)**: The register index (0-15).
+-   **Returns**: `int` - The 8-bit register value.
+
+#### `.set_register(reg, value)`
+
+Directly writes a value to an internal register and updates the internal emulation state (e.g., period, volume).
+
+-   **`reg` (`int`)**: The register index (0-15).
+-   **`value` (`int`)**: The 8-bit value to write.
+
+#### `.get_registers()`
+
+Returns all 16 internal registers as a list.
+
+-   **Returns**: `List[int]` - A list of 16 values.
+
 #### `.set_stereo_mix(al, ar, bl, br, cl, cr)`
-Sets the stereo weights (0-255) for each channel.
-- **Amstrad CPC Default**: `(255, 13, 170, 170, 13, 255)`
+
+Sets the stereo weights (panning) for the three PSG channels.
+
+-   **`al`, `ar` (`int`)**: Left and Right weights for Channel A (0-255).
+-   **`bl`, `br` (`int`)**: Left and Right weights for Channel B (0-255).
+-   **`cl`, `cr` (`int`)**: Left and Right weights for Channel C (0-255).
 
 #### `.generate(num_samples)`
-Generates 16-bit **stereo interleaved** audio samples.
-- **Returns**: `List[int]` (Size is `num_samples * 2`)
+
+Generates interleaved stereo audio samples.
+
+-   **`num_samples` (`int`)**: The number of samples to generate.
+-   **Returns**: `List[int]` - A list of `num_samples * 2` integers (alternating Left and Right channels).
