@@ -1,11 +1,12 @@
 #include <pybind11/pybind11.h>
 #include <pybind11/stl.h>
 #include "ay8910.h"
+#include "ay8912_cap32.h"
 
 namespace py = pybind11;
 
 PYBIND11_MODULE(ay8910_wrapper, m) {
-    m.doc() = "Python wrapper for the standalone AY-3-8910 emulator";
+    m.doc() = "Python wrapper for the standalone AY-3-8910 emulators (MAME and Caprice32 versions)";
 
     py::enum_<ay8910_device::psg_type_t>(m, "psg_type")
         .value("PSG_TYPE_AY", ay8910_device::PSG_TYPE_AY)
@@ -21,8 +22,8 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
     m.attr("PSG_EXTENDED_ENVELOPE") = py::int_(static_cast<int>(ay8910_device::PSG_EXTENDED_ENVELOPE));
     m.attr("PSG_HAS_EXPANDED_MODE") = py::int_(static_cast<int>(ay8910_device::PSG_HAS_EXPANDED_MODE));
 
+    // MAME version
     py::class_<ay8910_device>(m, "ay8910")
-        // We cast PSG_DEFAULT to int so pybind11 doesn't need the config_t enum exposed
         .def(py::init<ay8910_device::psg_type_t, int, int, int, int>(),
              py::arg("psg_type"), py::arg("clock"), py::arg("streams"), py::arg("ioports"), py::arg("feature") = static_cast<int>(ay8910_device::PSG_DEFAULT))
         .def("start", &ay8910_device::start)
@@ -33,4 +34,17 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
         .def("generate", &ay8910_device::generate,
              py::arg("num_samples"), py::arg("sample_rate"),
              "Generate a number of audio samples at a given sample rate");
+
+    // Caprice32 version
+    py::class_<ay8912_cap32>(m, "ay8912_cap32")
+        .def(py::init<int, int>(), py::arg("clock"), py::arg("sample_rate"))
+        .def("reset", &ay8912_cap32::reset)
+        .def("address_w", &ay8912_cap32::address_w)
+        .def("data_w", &ay8912_cap32::data_w)
+        .def("set_stereo_mix", &ay8912_cap32::set_stereo_mix,
+             py::arg("al"), py::arg("ar"), py::arg("bl"), py::arg("br"), py::arg("cl"), py::arg("cr"),
+             "Set stereo weights for channels A, B, and C")
+        .def("generate", &ay8912_cap32::generate,
+             py::arg("num_samples"),
+             "Generate 16-bit stereo interleaved audio samples");
 }

@@ -73,3 +73,33 @@ These constants can be used with the `.set_flags()` method.
 -   **`ay.AY8910_SINGLE_OUTPUT`**: Simulates the cross-channel mixing that occurs when the hardware outputs are tied together.
 -   **`ay.AY8910_DISCRETE_OUTPUT`**: A mode for discrete mixing stages.
 -   **`ay.AY8910_RESISTOR_OUTPUT`**: Causes the driver to output resistor values instead of audio samples, intended for netlist simulation.
+
+---
+
+## The `ay8912_cap32` Class
+
+A specialized emulator class based on the **Caprice32** (Amstrad CPC) implementation. It uses different synthesis logic and specific amplitude tables (`Amplitudes_AY` by Sergey Bulba).
+
+### `ay8912_cap32(clock, sample_rate)`
+
+-   **`clock` (`int`)**: The master clock frequency (e.g., `1000000` for 1 MHz).
+-   **`sample_rate` (`int`)**: The target output sample rate (e.g., `44100`).
+
+### Methods
+
+#### `.reset()`
+Resets the emulator state.
+
+#### `.address_w(value)`
+Writes to the address latch.
+
+#### `.data_w(value)`
+Writes data to the selected register.
+
+#### `.set_stereo_mix(al, ar, bl, br, cl, cr)`
+Sets the stereo weights (0-255) for each channel.
+- **Amstrad CPC Default**: `(255, 13, 170, 170, 13, 255)`
+
+#### `.generate(num_samples)`
+Generates 16-bit **stereo interleaved** audio samples.
+- **Returns**: `List[int]` (Size is `num_samples * 2`)

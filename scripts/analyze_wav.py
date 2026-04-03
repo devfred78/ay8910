@@ -15,8 +15,10 @@ def analyze_wav(path):
             print(f"  Durée       : {duration:.2f} s")
             
             # Analyse statistique sur un segment de 5 secondes au milieu
-            w.setpos(params.framerate * 30) # 30s
-            n_frames = params.framerate * 5
+            mid = params.nframes // 2
+            start = max(0, mid - params.framerate * 2)
+            w.setpos(start)
+            n_frames = min(params.framerate * 5, params.nframes - start)
             frames = w.readframes(n_frames)
             if params.sampwidth == 2:
                 fmt = "<" + "h" * (len(frames) // 2)

@@ -14,6 +14,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # Define our standalone C++ library
 add_library(ay8910_cpp_lib
     ay8910_cpp_lib/ay8910.cpp
+    ay8910_cpp_lib/ay8912_cap32.cpp
 )
 # Specify its include directory
 target_include_directories(ay8910_cpp_lib PUBLIC ay8910_cpp_lib)

@@ -73,6 +73,20 @@ print("Generated 'tone_output.wav'")
 
 For a complete list of all available functions, classes, and constants, please see the [API Reference](REFERENCE.md).
 
+## Advanced: Caprice32 (Amstrad CPC) Emulation
+
+The wrapper also includes an alternative implementation based on the **Caprice32** emulator, which uses a different synthesis logic and specific amplitude tables for a more "authentic" CPC sound.
+
+```python
+# Initialize the Caprice32-style emulator
+psg_cpc = ay.ay8912_cap32(clock, sample_rate)
+# Set standard CPC stereo mix (Channel A=Left, B=Center, C=Right)
+psg_cpc.set_stereo_mix(255, 13, 170, 170, 13, 255)
+
+# Generate stereo audio (interleaved)
+stereo_samples = psg_cpc.generate(num_samples)
+```
+
 ## For Developers: Building from Source
 
 If you want to modify the code, you need to build the project from source.
