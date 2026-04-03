@@ -28,7 +28,7 @@ def read_nt_string(data, offset):
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
-def play_ym(filename, output_wav, live_play):
+def play_ym(filename, output_wav, live_play, engine="cap32"):
     if live_play and sd is None:
         print("ERROR: The 'sounddevice' and/or 'numpy' libraries are not installed.", file=sys.stderr)
         print("Live playback is not available. Please install them by running:", file=sys.stderr)
@@ -119,36 +119,48 @@ def play_ym(filename, output_wav, live_play):
         print("Error: Non-interleaved YM format is not supported.")
         return
 
-    # --- Initialize AY8910 Emulator ---
+    # --- Initialize PSG Emulator ---
     sample_rate = 44100
+    channels = 1
     
-    # Original logic: Use clock from header
-    print(f"Initializing PSG: Type=YM, Clock={clock} Hz")
-    psg = ay.ay8910(ay.psg_type.PSG_TYPE_YM, clock, 1, 0)
+    if engine == "cap32":
+        print(f"Initializing PSG: Caprice32 (AY-3-8912), Clock={clock} Hz")
+        psg = ay.ay8912_cap32(clock, sample_rate)
+        # Standard CPC stereo mix: A=Left, B=Center, C=Right
+        psg.set_stereo_mix(255, 13, 170, 170, 13, 255)
+        channels = 2
+    else:
+        print(f"Initializing PSG: MAME (YM2149), Clock={clock} Hz")
+        psg = ay.ay8910(ay.psg_type.PSG_TYPE_YM, clock, 1, 0)
+        # Configuration Flags:
+        # 0x01: AY8910_LEGACY_OUTPUT (Normalize 0..1)
+        # 0x02: AY8910_SINGLE_OUTPUT (Internal MAME Mono Mixing)
+        psg.set_flags(0x01 | 0x02)
+        psg.start()
+        channels = 1
     
-    # Configuration Flags:
-    # 0x01: AY8910_LEGACY_OUTPUT (Normalize 0..1)
-    # 0x02: AY8910_SINGLE_OUTPUT (Internal MAME Mono Mixing)
-    psg.set_flags(0x01 | 0x02) # Back to 0x01 | 0x02
-    psg.start()
     psg.reset()
 
     if live_play:
         # --- Live Playback using sounddevice ---
-        print("\nPlaying live... Press Ctrl+C to stop.")
+        print(f"\nPlaying live ({'Stereo' if channels == 2 else 'Mono'})... Press Ctrl+C to stop.")
         
-        def callback(outdata, frames, time, status):
+        def callback(outdata, frames_to_gen, time_info, status):
             if status:
                 print(status, file=sys.stderr)
             
-            chunk = psg.generate(frames, sample_rate)
-            if len(chunk) < frames:
-                chunk.extend([0] * (frames - len(chunk)))
+            if engine == "cap32":
+                chunk = psg.generate(frames_to_gen)
+            else:
+                chunk = psg.generate(frames_to_gen, sample_rate)
 
-            outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, 1)
+            if len(chunk) // channels < frames_to_gen:
+                chunk.extend([0] * (frames_to_gen * channels - len(chunk)))
+
+            outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, channels)
 
         try:
-            with sd.OutputStream(samplerate=sample_rate, channels=1, dtype='int16', callback=callback):
+            with sd.OutputStream(samplerate=sample_rate, channels=channels, dtype='int16', callback=callback):
                 for i in range(nframes):
                     frame = frames[i]
                     for r in range(14):
@@ -164,7 +176,7 @@ def play_ym(filename, output_wav, live_play):
             
     else:
         # --- Render to File ---
-        print("\nRendering audio to file...")
+        print(f"\nRendering audio to file ({'Stereo' if channels == 2 else 'Mono'})...")
         all_samples = []
         
         for i in range(nframes):
@@ -175,10 +187,13 @@ def play_ym(filename, output_wav, live_play):
             
             # Use floating point math to keep track of total samples needed up to this frame
             target_total_samples = int((i + 1) * sample_rate / fps)
-            samples_to_generate = target_total_samples - len(all_samples)
+            samples_to_generate = target_total_samples - (len(all_samples) // channels)
             
             if samples_to_generate > 0:
-                chunk = psg.generate(samples_to_generate, sample_rate)
+                if engine == "cap32":
+                    chunk = psg.generate(samples_to_generate)
+                else:
+                    chunk = psg.generate(samples_to_generate, sample_rate)
                 all_samples.extend(chunk)
             
             if i % 100 == 0:
@@ -188,7 +203,7 @@ def play_ym(filename, output_wav, live_play):
 
         print(f"Writing to {output_wav}...")
         with wave.open(output_wav, 'wb') as f:
-            f.setnchannels(1)
+            f.setnchannels(channels)
             f.setsampwidth(2)
             f.setframerate(sample_rate)
             packed = struct.pack('<' + 'h' * len(all_samples), *all_samples)
@@ -199,10 +214,13 @@ def main():
     parser.add_argument("input_file", help="Path to the .ym file.")
     parser.add_argument("-p", "--play", action="store_true", help="Play the file live instead of rendering to WAV.")
     parser.add_argument("-o", "--output", default="output_ym.wav", help="Output WAV file name (default: output_ym.wav).")
+    parser.add_argument("--mame", action="store_true", help="Use the MAME emulation engine (mono) instead of Caprice32 (stereo).")
     
     args = parser.parse_args()
     
-    play_ym(args.input_file, args.output, args.play)
+    engine = "mame" if args.mame else "cap32"
+    
+    play_ym(args.input_file, args.output, args.play, engine)
 
 if __name__ == "__main__":
     main()
