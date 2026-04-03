@@ -240,10 +240,10 @@ Controls the shape of the volume variation (Attack, Decay, Sustain, Release).
 
 | Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |
 | :--- | :--- | :--- | :--- | :--- |
-| **0** | **0** | **x** | **x** | \___ (Single Decay, then Silence) |
-| **1** | **0** | **0** | **0** | \\\\\\\ (Repeating Decay / Sawtooth) |
-| **1** | **0** | **1** | **1** | /|/|/| (Repeating Attack / Inverse Sawtooth) |
-| **1** | **1** | **0** | **0** | /\/\/\ (Triangle) |
+| **0** | **0** | **x** | **x** | `\___` (Single Decay, then Silence) |
+| **1** | **0** | **0** | **0** | `\\\\\\\\` (Repeating Decay / Sawtooth) |
+| **1** | **0** | **1** | **1** | `/\|/\|/\|` (Repeating Attack / Inverse Sawtooth) |
+| **1** | **1** | **0** | **0** | `/\/\/\` (Triangle) |
 
 **Practical Example:**
 ```python
