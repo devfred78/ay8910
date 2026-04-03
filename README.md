@@ -141,5 +141,5 @@ The project includes a suite of unit tests to verify the functionality of the wr
 This project relies on the incredible work of the following open-source projects:
 
 - **[MAME](https://github.com/mamedev/mame)**: The original AY-3-8910 and YM2149 emulation cores were derived from the MAME project. Their commitment to accuracy and historical preservation is a cornerstone of this library.
-- **[Caprice32](https://github.com/keinderek/cap32)**: The Amstrad CPC-specific PSG emulation logic and amplitude tables were integrated from the Caprice32 project, providing authentic sound for CPC-related audio tasks.
+- **[Caprice32](https://github.com/ColinPitrat/caprice32)**: The Amstrad CPC-specific PSG emulation logic and amplitude tables were integrated from the Caprice32 project, providing authentic sound for CPC-related audio tasks.
 - **[Sergey Bulba](http://bulba.at.gz.ru/)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 engine, which are essential for reproducing the characteristic sound of these chips.
