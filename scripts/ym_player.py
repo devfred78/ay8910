@@ -121,12 +121,14 @@ def play_ym(filename, output_wav, live_play):
 
     # --- Initialize AY8910 Emulator ---
     sample_rate = 44100
-    if clock < 1000000 or clock > 4000000:
-        print(f"Warning: Bizarre clock rate ({clock} Hz) detected. Forcing 2 MHz.")
-        clock = 2000000
-
-    psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
-    psg.set_flags(ay.AY8910_LEGACY_OUTPUT)
+    
+    print(f"Initializing PSG: Type=YM, Clock={clock} Hz")
+    psg = ay.ay8910(ay.psg_type.PSG_TYPE_YM, clock, 1, 0)
+    
+    # Configuration Flags:
+    # 0x01: AY8910_LEGACY_OUTPUT (Normalize 0..1)
+    # 0x02: AY8910_SINGLE_OUTPUT (Internal MAME Mono Mixing)
+    psg.set_flags(0x01 | 0x02)
     psg.start()
     psg.reset()
 

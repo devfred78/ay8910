@@ -810,15 +810,29 @@ std::vector<short> ay8910_device::generate(int num_samples, int sample_rate)
         const auto& buffer = stream.get_buffer();
         for (const auto& sample : buffer) {
             double s = sample;
-            // The MAME legacy 3D table mixes 3 channels resulting in values up to 3.0.
-            // We must scale it back down and remove the DC offset to prevent integer overflow
-            // which causes severe crackling/distortion.
-            if (m_flags & AY8910_LEGACY_OUTPUT) {
-                s /= 3.0; // scale 0..3 down to 0..1
+            
+            // Mono Mixing (SINGLE_OUTPUT)
+            if (m_streams == 1)
+            {
+                // In Mono mode, MAME sums the channels.
+                // The signal is typically in the [0, 3] range if not normalized,
+                // or [0, 1] if normalized by build_3D_table.
+                
+                if (!(m_flags & AY8910_LEGACY_OUTPUT)) {
+                    s /= 3.0; // Manual normalization if necessary
+                }
+                
+                // Centering: silence is at 0.0 in MAME's mixer table.
+                // For a [0, 1] signal, the center is at 0.5.
+                s = (s - 0.5) * 2.0;
             }
-            s = s * 2.0 - 1.0; // Center around 0 (-1 to 1) to remove DC offset
+            else
+            {
+                // Multi-channel mode (not currently used by the script)
+                s = (s - 0.5) * 2.0;
+            }
 
-            // Clamp to avoid any accidental wrap-around
+            // Final clamping to avoid any overflow
             if (s > 1.0) s = 1.0;
             if (s < -1.0) s = -1.0;
 

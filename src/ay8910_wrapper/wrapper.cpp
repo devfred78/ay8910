@@ -16,6 +16,10 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
     m.attr("AY8910_SINGLE_OUTPUT") = py::int_(AY8910_SINGLE_OUTPUT);
     m.attr("AY8910_DISCRETE_OUTPUT") = py::int_(AY8910_DISCRETE_OUTPUT);
     m.attr("AY8910_RESISTOR_OUTPUT") = py::int_(AY8910_RESISTOR_OUTPUT);
+    m.attr("PSG_PIN26_IS_CLKSEL") = py::int_(static_cast<int>(ay8910_device::PSG_PIN26_IS_CLKSEL));
+    m.attr("PSG_HAS_INTERNAL_DIVIDER") = py::int_(static_cast<int>(ay8910_device::PSG_HAS_INTERNAL_DIVIDER));
+    m.attr("PSG_EXTENDED_ENVELOPE") = py::int_(static_cast<int>(ay8910_device::PSG_EXTENDED_ENVELOPE));
+    m.attr("PSG_HAS_EXPANDED_MODE") = py::int_(static_cast<int>(ay8910_device::PSG_HAS_EXPANDED_MODE));
 
     py::class_<ay8910_device>(m, "ay8910")
         // We cast PSG_DEFAULT to int so pybind11 doesn't need the config_t enum exposed
