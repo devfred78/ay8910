@@ -1,6 +1,12 @@
 # AY-3-8910 Standalone Library and Python Wrapper
 
-This project contains a standalone C++ library for the AY-3-8910 sound chip, originally derived from the MAME project, and a Python wrapper to make it accessible from Python scripts.
+> **A Note on this Project's Origin**
+>
+> This project is primarily the result of a series of experiments using various IA Code Assists for code generation and error handling. Rather than using it on academic examples, it seemed more interesting to apply it to a project that could meet a real practical need.
+>
+> This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
+
+This project contains a standalone C++ library for the AY-3-8910 sound chip, originally derived from the MAME project and further enriched with emulation logic from the Caprice32 project. It also includes a Python wrapper to make it accessible from Python scripts.
 
 It allows for the programmatic generation of chiptune-style audio and the playback of `.ym` music files.
 
@@ -129,3 +135,11 @@ The project includes a suite of unit tests to verify the functionality of the wr
     uv run python -m unittest discover -s tests
     ```
     This will find and execute all tests in the `tests/` directory.
+
+## Acknowledgments
+
+This project relies on the incredible work of the following open-source projects:
+
+- **[MAME](https://github.com/mamedev/mame)**: The original AY-3-8910 and YM2149 emulation cores were derived from the MAME project. Their commitment to accuracy and historical preservation is a cornerstone of this library.
+- **[Caprice32](https://github.com/keinderek/cap32)**: The Amstrad CPC-specific PSG emulation logic and amplitude tables were integrated from the Caprice32 project, providing authentic sound for CPC-related audio tasks.
+- **[Sergey Bulba](http://bulba.at.gz.ru/)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 engine, which are essential for reproducing the characteristic sound of these chips.
