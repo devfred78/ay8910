@@ -4,9 +4,34 @@ This document provides a detailed reference for the functions, classes, and cons
 
 ---
 
-## The `ay8910` Class
+## The `ay8910` Class (MAME-based)
 
-This is the main class used to instantiate and control an AY-3-8910 emulator.
+This is the main class used to instantiate and control an AY-3-8910 emulator, based on the MAME implementation.
+
+### Usage Example
+
+```python
+import ay8910_wrapper as ay
+
+# Initialize a YM2149 chip at 2MHz
+chip = ay.ay8910(ay.psg_type.PSG_TYPE_YM, 2000000, 1, 0)
+chip.start()
+chip.set_flags(ay.AY8910_LEGACY_OUTPUT)
+
+# Play a middle A (440Hz) on Channel A
+# Period = Clock / (16 * Frequency) = 2000000 / (16 * 440) ≈ 284
+period = 284
+chip.address_w(0) # Channel A Fine Tone
+chip.data_w(period & 0xFF)
+chip.address_w(1) # Channel A Coarse Tone
+chip.data_w((period >> 8) & 0x0F)
+
+chip.address_w(8) # Channel A Amplitude
+chip.data_w(15)   # Max volume (non-envelope)
+
+# Generate 1 second of audio at 44.1kHz
+audio = chip.generate(44100, 44100)
+```
 
 ### `ay8910(psg_type, clock, streams, ioports, feature)`
 
@@ -52,7 +77,7 @@ Generates a block of audio and returns it as a list of 16-bit signed integers.
 
 -   **`num_samples` (`int`)**: The number of audio samples to generate.
 -   **`sample_rate` (`int`)**: The target sample rate in Hertz (e.g., `44100`).
--   **Returns**: `List[int]` - A list of audio samples ranging from -32768 to 32767.
+-   **Returns**: `List[int]` - A list of mono audio samples ranging from -32768 to 32767.
 
 ---
 
@@ -76,9 +101,40 @@ These constants can be used with the `.set_flags()` method.
 
 ---
 
-## The `ay8912_cap32` Class
+## The `ay8912_cap32` Class (Caprice32-based)
 
-A specialized emulator class based on the **Caprice32** (Amstrad CPC) implementation. It uses different synthesis logic and specific amplitude tables (`Amplitudes_AY` by Sergey Bulba).
+A specialized emulator class based on the **Caprice32** (Amstrad CPC) implementation. It uses different synthesis logic and specific amplitude tables (`Amplitudes_AY` by Sergey Bulba). It is natively **stereo**.
+
+### Usage Example
+
+```python
+import ay8910_wrapper as ay
+
+# Initialize a CPC-style PSG at 1MHz, targeting 44.1kHz output
+chip = ay.ay8912_cap32(1000000, 44100)
+
+# Set Amstrad CPC standard stereo mix (ABC)
+# Weights are 0-255 for (Left, Right)
+chip.set_stereo_mix(255, 13,   # Channel A (Mostly Left)
+                    170, 170,  # Channel B (Center)
+                    13, 255)   # Channel C (Mostly Right)
+
+# Play 440Hz on Channel A
+period = 1000000 // (16 * 440) # ≈ 142
+chip.address_w(0)
+chip.data_w(period & 0xFF)
+chip.address_w(1)
+chip.data_w((period >> 8) & 0x0F)
+chip.address_w(8)
+chip.data_w(15)
+
+# Generate 1 second of stereo audio
+# Returns 44100 * 2 = 88200 samples
+audio = chip.generate(44100)
+
+# audio[0] is Left sample 0
+# audio[1] is Right sample 0
+```
 
 ### `ay8912_cap32(clock, sample_rate)`
 
