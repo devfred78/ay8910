@@ -816,15 +816,16 @@ std::vector<short> ay8910_device::generate(int num_samples, int sample_rate)
             {
                 // In Mono mode, MAME sums the channels.
                 // The signal is typically in the [0, 3] range if not normalized,
-                // or [0, 1] if normalized by build_3D_table.
+                // or [0, 1] if normalized by build_3D_table (LEGACY).
                 
-                if (!(m_flags & AY8910_LEGACY_OUTPUT)) {
-                    s /= 3.0; // Manual normalization if necessary
+                if (m_flags & AY8910_LEGACY_OUTPUT) {
+                    // Centering: silence is at 0.0 in MAME's mixer table.
+                    // For a [0, 1] signal, the center is at 0.5.
+                    s = (s - 0.5) * 2.0;
+                } else {
+                    // Not normalized: s is sum of volumes (roughly 0..3)
+                    s = (s / 3.0 - 0.5) * 2.0;
                 }
-                
-                // Centering: silence is at 0.0 in MAME's mixer table.
-                // For a [0, 1] signal, the center is at 0.5.
-                s = (s - 0.5) * 2.0;
             }
             else
             {
