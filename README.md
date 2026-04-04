@@ -1,14 +1,18 @@
 # AY-3-8910 Standalone Library and Python Wrapper
 
+A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis.
+
 > **A Note on this Project's Origin**
 >
 > This project is primarily the result of a series of experiments using various IA Code Assists for code generation and error handling. Rather than using it on academic examples, it seemed more interesting to apply it to a project that could meet a real practical need.
 >
 > This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
 
-This project contains a standalone C++ library for the AY-3-8910 sound chip, originally derived from the MAME project and further enriched with emulation logic from the Caprice32 project. It also includes a Python wrapper to make it accessible from Python scripts.
+This project contains a standalone C++ library for the AY-3-8910 sound chip. It features two emulation engines:
+- **Caprice32-based (`ay8912_cap32`)**: The **recommended** engine for all new projects. It offers superior accuracy, stereo mixing, and integrated live audio support.
+- **MAME-based (`ay8910`)**: Kept primarily for **historical reasons** and legacy compatibility.
 
-It allows for the programmatic generation of chiptune-style audio and the playback of `.ym` music files.
+It also includes a Python wrapper to make these emulators accessible from Python scripts, allowing for programmatic chiptune generation and `.ym` file playback.
 
 ## Quick Start (Live Audio)
 
@@ -50,9 +54,9 @@ python scripts\ym_live_player.py PATH\TO\YM_FILE.YM
     ```
     This will also install the necessary dependency (`lhafile`).
 
-## Basic Usage in Python
+## Basic Usage in Python (Legacy MAME engine)
 
-Here is a simple example of how to use the `ay8910_wrapper` to generate a single tone and save it as a WAV file.
+> **Note**: This section demonstrates the legacy `ay8910` class. For modern applications, please refer to the **Quick Start** section or the **Caprice32** section below.
 
 ```python
 import ay8910_wrapper as ay
@@ -107,9 +111,9 @@ print("Generated 'tone_output.wav'")
 
 For a complete list of all available functions, classes, and constants, please see the [API Reference](REFERENCE.md).
 
-## Advanced: Caprice32 (Amstrad CPC) Emulation
+## Recommended: Caprice32 (Amstrad CPC) Emulation
 
-The wrapper also includes an alternative implementation based on the **Caprice32** emulator, which uses a different synthesis logic and specific amplitude tables for a more "authentic" CPC sound.
+The **Caprice32** engine is the preferred choice for most users. It provides more authentic sound synthesis and advanced features like stereo panning.
 
 ```python
 # Initialize the Caprice32-style emulator
