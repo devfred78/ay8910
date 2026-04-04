@@ -113,6 +113,17 @@ Generates a block of audio and returns it as a list of 16-bit signed integers.
 -   **`sample_rate` (`int`)**: The target sample rate in Hertz (e.g., `44100`).
 -   **Returns**: `List[int]` - A list of mono audio samples ranging from -32768 to 32767.
 
+#### `.play(sample_rate=44100)`
+
+Starts live audio playback. Any changes to registers via `.set_register()` or `.data_w()` will be reflected in the audio output immediately.
+Requires `sounddevice` and `numpy` to be installed.
+
+-   **`sample_rate` (`int`, optional)**: The sample rate for the audio stream. Defaults to 44100.
+
+#### `.stop()`
+
+Stops the live audio playback.
+
 ---
 
 ## Enums and Constants

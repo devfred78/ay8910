@@ -10,6 +10,34 @@ This project contains a standalone C++ library for the AY-3-8910 sound chip, ori
 
 It allows for the programmatic generation of chiptune-style audio and the playback of `.ym` music files.
 
+## Quick Start (Live Audio)
+
+```python
+import ay8910_wrapper as ay
+import time
+
+# Initialize
+psg = ay.ay8912_cap32(1000000, 44100)
+psg.set_stereo_mix(255, 13, 170, 170, 13, 255)
+
+# Start live playback!
+psg.play()
+
+# Set registers - sound changes immediately
+psg.set_register(0, 254) # Tone A Fine
+psg.set_register(1, 0)   # Tone A Coarse
+psg.set_register(7, 0x3E) # Enable Channel A
+psg.set_register(8, 15)   # Max volume
+
+time.sleep(1)
+psg.stop()
+```
+
+```sh
+# Lecture d'un fichier .ym avec le nouveau script live
+python scripts\ym_live_player.py "YM example files\5AXE.YM"
+```
+
 ## Installation
 
 1.  **Download the Wheel File**: Go to the [Releases](https://github.com/devfrd78/ay8910/releases) page of this project and download the latest `.whl` file for your system (e.g., `ay8910_wrapper-0.1.0-cp314-cp314-win_amd64.whl`).
