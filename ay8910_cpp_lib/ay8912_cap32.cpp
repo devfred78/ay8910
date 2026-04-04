@@ -27,6 +27,11 @@ ay8912_cap32::ay8912_cap32(int clk, int sr) : clock(clk), sample_rate(sr), reg_l
 
 void ay8912_cap32::reset() {
     memset(&regs, 0, sizeof(regs));
+    regs.Mixer = 0b00111111; // Standard: all disabled
+    regs.AmplA = 0;
+    regs.AmplB = 0;
+    regs.AmplC = 0;
+    
     ton_count_a = ton_count_b = ton_count_c = 0;
     ton_out_a = ton_out_b = ton_out_c = 0;
     noise_count = 0;
@@ -36,7 +41,8 @@ void ay8912_cap32::reset() {
     amplitude_env = 0;
     env_first_period = true;
     current_tick_fraction = 0;
-    update_mixer(0);
+    update_mixer(regs.Mixer);
+    calculate_level_tables(); // Recalculate with default mix
 }
 
 void ay8912_cap32::address_w(uint8_t addr) {
@@ -60,9 +66,9 @@ void ay8912_cap32::set_register(int r, uint8_t data) {
         case 5: regs.TonC = (regs.TonC & 0x00FF) | ((data & 0x0F) << 8); break;
         case 6: regs.Noise = data & 0x1F; break;
         case 7: update_mixer(data); break;
-        case 8: regs.AmplA = data & 0x1F; env_en_a = !(data & 0x10); break;
-        case 9: regs.AmplB = data & 0x1F; env_en_b = !(data & 0x10); break;
-        case 10: regs.AmplC = data & 0x1F; env_en_c = !(data & 0x10); break;
+        case 8: regs.AmplA = data & 0x1F; env_en_a = (data & 0x10) != 0; break;
+        case 9: regs.AmplB = data & 0x1F; env_en_b = (data & 0x10) != 0; break;
+        case 10: regs.AmplC = data & 0x1F; env_en_c = (data & 0x10) != 0; break;
         case 11: regs.Envelope = (regs.Envelope & 0xFF00) | data; break;
         case 12: regs.Envelope = (regs.Envelope & 0x00FF) | (data << 8); break;
         case 13: update_env_type(data); break;
@@ -129,13 +135,26 @@ void ay8912_cap32::calculate_level_tables() {
 
     for (int i = 0; i < 16; i++) {
         double amp = Amplitudes_AY[i] / 65535.0;
-        level_al[i*2] = level_al[i*2+1] = (int)(amp * index_al * scale);
-        level_ar[i*2] = level_ar[i*2+1] = (int)(amp * index_ar * scale);
-        level_bl[i*2] = level_bl[i*2+1] = (int)(amp * index_bl * scale);
-        level_br[i*2] = level_br[i*2+1] = (int)(amp * index_br * scale);
-        level_cl[i*2] = level_cl[i*2+1] = (int)(amp * index_cl * scale);
-        level_cr[i*2] = level_cr[i*2+1] = (int)(amp * index_cr * scale);
+        level_al[i*2] = (int)(amp * index_al * scale);
+        level_al[i*2+1] = (int)(amp * index_al * scale);
+        level_ar[i*2] = (int)(amp * index_ar * scale);
+        level_ar[i*2+1] = (int)(amp * index_ar * scale);
+        level_bl[i*2] = (int)(amp * index_bl * scale);
+        level_bl[i*2+1] = (int)(amp * index_bl * scale);
+        level_br[i*2] = (int)(amp * index_br * scale);
+        level_br[i*2+1] = (int)(amp * index_br * scale);
+        level_cl[i*2] = (int)(amp * index_cl * scale);
+        level_cl[i*2+1] = (int)(amp * index_cl * scale);
+        level_cr[i*2] = (int)(amp * index_cr * scale);
+        level_cr[i*2+1] = (int)(amp * index_cr * scale);
     }
+}
+
+void ay8912_cap32::set_stereo_mix(int al, int ar, int bl, int br, int cl, int cr) {
+    index_al = al; index_ar = ar;
+    index_bl = bl; index_br = br;
+    index_cl = cl; index_cr = cr;
+    calculate_level_tables();
 }
 
 void ay8912_cap32::step_logic() {
@@ -189,19 +208,22 @@ void ay8912_cap32::step_logic() {
 void ay8912_cap32::step_mixer(int& left, int& right) {
     auto process_chan = [&](bool ton_en, bool noise_en, bool env_en, uint8_t ton_out, uint16_t ton_period, uint8_t ampl, int* lev_l, int* lev_r) {
         bool k = true;
-        if (ton_en) k = (env_en || ton_period > 4) ? ton_out : true;
-        if (noise_en) k = k && noise_out;
+        if (ton_en) k = (env_en || ton_period > 4) ? (ton_out != 0) : true;
+        if (noise_en) k = k && (noise_out != 0);
         
         if (k) {
-            int idx = env_en ? (ampl * 2 + 1) : std::clamp(amplitude_env, 0, 31);
+            int idx = env_en ? std::clamp(amplitude_env, 0, 31) : (ampl & 0x0F) * 2 + 1;
             left += lev_l[idx];
             right += lev_r[idx];
+        } else {
+            left += lev_l[0];
+            right += lev_r[0];
         }
     };
 
-    process_chan(ton_en_a, noise_en_a, env_en_a, ton_out_a, regs.TonA, regs.AmplA, level_al, level_ar);
-    process_chan(ton_en_b, noise_en_b, env_en_b, ton_out_b, regs.TonB, regs.AmplB, level_bl, level_br);
-    process_chan(ton_en_c, noise_en_c, env_en_c, ton_out_c, regs.TonC, regs.AmplC, level_cl, level_cr);
+    if (ton_en_a || noise_en_a) process_chan(ton_en_a, noise_en_a, env_en_a, ton_out_a, regs.TonA, regs.AmplA, level_al, level_ar);
+    if (ton_en_b || noise_en_b) process_chan(ton_en_b, noise_en_b, env_en_b, ton_out_b, regs.TonB, regs.AmplB, level_bl, level_br);
+    if (ton_en_c || noise_en_c) process_chan(ton_en_c, noise_en_c, env_en_c, ton_out_c, regs.TonC, regs.AmplC, level_cl, level_cr);
 }
 
 std::vector<short> ay8912_cap32::generate(int num_samples) {
@@ -223,19 +245,14 @@ std::vector<short> ay8912_cap32::generate(int num_samples) {
         }
 
         if (ticks > 0) {
-            output.push_back((short)(left / ticks));
-            output.push_back((short)(right / ticks));
+            short L = (short)(left / ticks);
+            short R = (short)(right / ticks);
+            output.push_back(L);
+            output.push_back(R);
         } else {
             output.push_back(0);
             output.push_back(0);
         }
     }
     return output;
-}
-
-void ay8912_cap32::set_stereo_mix(int al, int ar, int bl, int br, int cl, int cr) {
-    index_al = al; index_ar = ar;
-    index_bl = bl; index_br = br;
-    index_cl = cl; index_cr = cr;
-    calculate_level_tables();
 }
