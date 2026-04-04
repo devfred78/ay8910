@@ -5,54 +5,54 @@ import ay8910_wrapper as ay
 import time
 import argparse
 
-# Essayer d'importer lhafile pour les fichiers .ym compressés
+# Try to import lhafile for compressed .ym files
 try:
     import lhafile
 except ImportError:
     lhafile = None
 
 def read_nt_string(data, offset):
-    """Lit une chaîne terminée par un caractère nul."""
+    """Reads a null-terminated string."""
     end = data.find(b'\0', offset)
     if end == -1:
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
 def play_ym_live(filename, engine="cap32"):
-    print(f"Lecture de {filename}...")
+    print(f"Playing {filename}...")
     try:
         with open(filename, 'rb') as f:
             data = f.read()
     except FileNotFoundError:
-        print(f"Erreur : Impossible de trouver le fichier '{filename}'.")
+        print(f"Error: Could not find file '{filename}'.")
         return
 
-    # Gestion de la compression LHA
+    # Handle LHA compression
     if len(data) > 6 and b'-lh' in data[2:6]:
         if lhafile is None:
-            print("Erreur : Le fichier est compressé (LHA) mais 'lhafile' n'est pas installé.")
-            print("Installez-le avec : pip install lhafile")
+            print("Error: The file is compressed (LHA) but 'lhafile' is not installed.")
+            print("Install it with: pip install lhafile")
             return
         
-        print("Compression LHA détectée. Décompression en mémoire...")
+        print("LHA compression detected. Decompressing in memory...")
         try:
             lha_archive = lhafile.LhaFile(filename)
             best_candidate = max(lha_archive.infolist(), key=lambda f: f.file_size, default=None)
             if best_candidate:
                 data = lha_archive.read(best_candidate.filename)
             else:
-                print("Erreur : Aucun fichier valide dans l'archive LHA.")
+                print("Error: No valid file found in the LHA archive.")
                 return
         except Exception as e:
-            print(f"Erreur lors de la décompression LHA : {e}")
+            print(f"Error during LHA decompression: {e}")
             return
 
     header_id = data[0:4]
     if header_id not in (b'YM5!', b'YM6!'):
-        print(f"Erreur : Format YM '{header_id}' non supporté. Seuls YM5! et YM6! le sont.")
+        print(f"Error: Unsupported YM format '{header_id}'. Only YM5! and YM6! are supported.")
         return
 
-    # Parsing du header YM
+    # Parsing the YM header
     nframes = struct.unpack('>I', data[12:16])[0]
     attributes = struct.unpack('>I', data[16:20])[0]
     interleaved = (attributes & 1) != 0
@@ -69,13 +69,13 @@ def play_ym_live(filename, engine="cap32"):
     author, offset = read_nt_string(data, offset)
     comment, offset = read_nt_string(data, offset)
     
-    print(f"Titre  : {song_name}")
-    print(f"Auteur : {author}")
-    print(f"Durée  : {nframes/fps:.2f} secondes ({fps} FPS)")
+    print(f"Title  : {song_name}")
+    print(f"Author : {author}")
+    print(f"Length : {nframes/fps:.2f} seconds ({fps} FPS)")
 
-    # Extraction des registres
+    # Register extraction
     if not interleaved:
-        print("Erreur : Seul le format entrelacé est supporté.")
+        print("Error: Only interleaved format is supported.")
         return
 
     num_regs = 16
@@ -87,7 +87,7 @@ def play_ym_live(filename, engine="cap32"):
         frame_regs = [data[offset + r * nframes + i] for r in range(num_regs)]
         frames.append(frame_regs)
 
-    # Initialisation du PSG avec la nouvelle API
+    # Initializing PSG with the new API
     sample_rate = 44100
     if engine == "cap32":
         psg = ay.ay8912_cap32(clock, sample_rate)
@@ -99,37 +99,37 @@ def play_ym_live(filename, engine="cap32"):
 
     psg.reset()
     
-    # DÉBUT DE LA LECTURE DIRECTE
-    print("\nLancement de la lecture directe... Appuyez sur Ctrl+C pour arrêter.")
+    # START LIVE PLAYBACK
+    print("\nStarting live playback... Press Ctrl+C to stop.")
     psg.play(sample_rate)
     
     start_time = time.time()
     try:
         for i in range(nframes):
             frame = frames[i]
-            # On met à jour les 14 registres standard du PSG
+            # Update the 14 standard PSG registers
             for r in range(14):
                 psg.set_register(r, frame[r])
             
-            # Synchronisation temporelle
+            # Time synchronization
             next_frame_time = start_time + (i + 1) / fps
             sleep_time = next_frame_time - time.time()
             if sleep_time > 0:
                 time.sleep(sleep_time)
                 
             if i % fps == 0:
-                print(f"Temps : {i//fps}s / {nframes//fps}s", end='\r')
+                print(f"Time: {i//fps}s / {nframes//fps}s", end='\r')
                 
     except KeyboardInterrupt:
-        print("\nArrêt par l'utilisateur.")
+        print("\nStopped by user.")
     finally:
         psg.stop()
-        print("\nLecture terminée.")
+        print("\nPlayback finished.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Lecteur live de fichiers YM utilisant la nouvelle API .play()")
-    parser.add_argument("input_file", help="Chemin vers le fichier .ym")
-    parser.add_argument("--mame", action="store_true", help="Utiliser le moteur MAME (mono) au lieu de Caprice32 (stéréo)")
+    parser = argparse.ArgumentParser(description="Live YM file player using the new .play() API")
+    parser.add_argument("input_file", help="Path to the .ym file")
+    parser.add_argument("--mame", action="store_true", help="Use MAME engine (mono) instead of Caprice32 (stereo)")
     
     args = parser.parse_args()
     engine = "mame" if args.mame else "cap32"

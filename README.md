@@ -34,8 +34,8 @@ psg.stop()
 ```
 
 ```sh
-# Lecture d'un fichier .ym avec le nouveau script live
-python scripts\ym_live_player.py "YM example files\5AXE.YM"
+# Play a .ym file using the new live script
+python scripts\ym_live_player.py PATH\TO\YM_FILE.YM
 ```
 
 ## Installation

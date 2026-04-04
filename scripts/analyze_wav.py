@@ -3,18 +3,18 @@ import struct
 import sys
 
 def analyze_wav(path):
-    print(f"\nAnalyse de {path} :")
+    print(f"\nAnalyzing {path}:")
     try:
         with wave.open(path, 'rb') as w:
             params = w.getparams()
-            print(f"  Canaux      : {params.nchannels}")
-            print(f"  Largeur éch.: {params.sampwidth} octets ({params.sampwidth*8} bits)")
-            print(f"  Fréquence   : {params.framerate} Hz")
-            print(f"  Nombre frames: {params.nframes}")
+            print(f"  Channels      : {params.nchannels}")
+            print(f"  Sample width  : {params.sampwidth} bytes ({params.sampwidth*8} bits)")
+            print(f"  Frequency     : {params.framerate} Hz")
+            print(f"  Frame count   : {params.nframes}")
             duration = params.nframes / params.framerate
-            print(f"  Durée       : {duration:.2f} s")
+            print(f"  Duration      : {duration:.2f} s")
             
-            # Analyse statistique sur un segment de 5 secondes au milieu
+            # Statistical analysis on a 5-second segment in the middle
             mid = params.nframes // 2
             start = max(0, mid - params.framerate * 2)
             w.setpos(start)
@@ -26,18 +26,18 @@ def analyze_wav(path):
                 if params.nchannels == 2:
                     samples_l = samples[::2]
                     samples_r = samples[1::2]
-                    print(f"  Stéréo détecté.")
-                    print(f"  Amplitude max (L/R): {max(abs(min(samples_l)), max(samples_l))} / {max(abs(min(samples_r)), max(samples_r))}")
-                    samples = samples_l # Travailler sur L pour la suite
+                    print(f"  Stereo detected.")
+                    print(f"  Max amplitude (L/R): {max(abs(min(samples_l)), max(samples_l))} / {max(abs(min(samples_r)), max(samples_r))}")
+                    samples = samples_l # Work on L for the following
                 else:
-                    print(f"  Mono détecté.")
-                    print(f"  Amplitude max: {max(abs(min(samples)), max(samples))}")
+                    print(f"  Mono detected.")
+                    print(f"  Max amplitude: {max(abs(min(samples)), max(samples))}")
                 
-                # Moyenne (DC offset)
+                # Mean (DC offset)
                 avg = sum(samples) / len(samples)
-                print(f"  Valeur moyenne (DC): {avg:.2f}")
+                print(f"  Mean value (DC): {avg:.2f}")
 
-                # Passages par zéro pour fréquence dominante
+                # Zero crossings for dominant frequency
                 last_s = samples[0]
                 crossings = []
                 for i in range(1, len(samples)):
@@ -47,9 +47,9 @@ def analyze_wav(path):
                 
                 if len(crossings) >= 2:
                     freq = (len(crossings)-1) * params.framerate / (crossings[-1] - crossings[0])
-                    print(f"  Fréquence dominante estimée: {freq:.2f} Hz")
+                    print(f"  Estimated dominant frequency: {freq:.2f} Hz")
     except Exception as e:
-        print(f"  Erreur : {e}")
+        print(f"  Error: {e}")
 
 if __name__ == "__main__":
     for arg in sys.argv[1:]:

@@ -12,9 +12,9 @@ def strip_metadata(input_path, output_path):
             
         print(f"Writing to {output_path}...")
         with wave.open(output_path, 'wb') as w_out:
-            # On ne garde que les paramètres essentiels : nchannels, sampwidth, framerate
-            # nframes sera calculé automatiquement à la fermeture
-            # comptest, compname sont à 'NONE' et 'not compressed' par défaut
+            # Keep only essential parameters: nchannels, sampwidth, framerate
+            # nframes will be calculated automatically on close
+            # comptype, compname are 'NONE' and 'not compressed' by default
             w_out.setnchannels(params.nchannels)
             w_out.setsampwidth(params.sampwidth)
             w_out.setframerate(params.framerate)

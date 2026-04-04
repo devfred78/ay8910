@@ -2,17 +2,17 @@ import wave
 import struct
 
 def read_first_samples(path, count=1000):
-    print(f"\nPremiers échantillons de {path} (valeurs brutes) :")
+    print(f"\nFirst samples of {path} (raw values):")
     try:
         with wave.open(path, 'rb') as w:
             frames = w.readframes(count)
             fmt = "<" + "h" * (len(frames) // 2)
             samples = struct.unpack(fmt, frames)
-            # Afficher les 20 premières valeurs
+            # Display first 20 values
             print(samples[:20])
-            # Calculer la moyenne des 100 premiers
+            # Calculate mean of the first 100
             avg = sum(samples[:100]) / 100
-            print(f"Moyenne des 100 premiers: {avg:.2f}")
+            print(f"Mean of first 100: {avg:.2f}")
     except Exception as e:
         print(f"Error: {e}")
 
