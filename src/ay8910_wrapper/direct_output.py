@@ -1,6 +1,8 @@
-import sounddevice as sd
-import numpy as np
 import threading
+
+import numpy as np
+import sounddevice as sd
+
 
 class DirectOutput:
     def __init__(self, device, sample_rate=44100, channels=1):

@@ -1,5 +1,7 @@
 import unittest
+
 import ay8910_wrapper
+
 
 class TestRegisterAccess(unittest.TestCase):
     def test_mame_register_access(self):

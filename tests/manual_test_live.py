@@ -1,7 +1,7 @@
-import ay8910_wrapper as ay
-import sounddevice as sd
-import numpy as np
 import time
+
+import ay8910_wrapper as ay
+
 
 def test_live_audio():
     print("Test de lecture audio en direct (Caprice32) via nouvelle API...")

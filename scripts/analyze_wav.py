@@ -1,6 +1,7 @@
-import wave
 import struct
 import sys
+import wave
+
 
 def analyze_wav(path):
     print(f"\nAnalyzing {path}:")
@@ -26,11 +27,14 @@ def analyze_wav(path):
                 if params.nchannels == 2:
                     samples_l = samples[::2]
                     samples_r = samples[1::2]
-                    print(f"  Stereo detected.")
-                    print(f"  Max amplitude (L/R): {max(abs(min(samples_l)), max(samples_l))} / {max(abs(min(samples_r)), max(samples_r))}")
+                    print("  Stereo detected.")
+                    print(
+                        f"  Max amplitude (L/R): {max(abs(min(samples_l)), max(samples_l))} / "
+                        f"{max(abs(min(samples_r)), max(samples_r))}"
+                    )
                     samples = samples_l # Work on L for the following
                 else:
-                    print(f"  Mono detected.")
+                    print("  Mono detected.")
                     print(f"  Max amplitude: {max(abs(min(samples)), max(samples))}")
                 
                 # Mean (DC offset)

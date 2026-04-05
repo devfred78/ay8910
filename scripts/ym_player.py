@@ -1,10 +1,10 @@
+import argparse
 import struct
 import sys
-import os
-import wave
-import ay8910_wrapper as ay
 import time
-import argparse
+import wave
+
+import ay8910_wrapper as ay
 
 # We need to add the lhafile library to handle compressed .ym files
 try:
@@ -16,8 +16,8 @@ except ImportError:
 
 # Use sounddevice for live playback (easier to install than pyaudio)
 try:
-    import sounddevice as sd
     import numpy as np
+    import sounddevice as sd
 except ImportError:
     sd = None
 
@@ -83,8 +83,8 @@ def play_ym(filename, output_wav, live_play, engine="cap32"):
         ndigidrums = struct.unpack('>H', data[20:22])[0]
         clock = struct.unpack('>I', data[22:26])[0]
         fps = struct.unpack('>H', data[26:28])[0]
-        loop_frame = struct.unpack('>I', data[28:32])[0]
-        add_size = struct.unpack('>H', data[32:34])[0]
+        _loop_frame = struct.unpack('>I', data[28:32])[0]
+        _add_size = struct.unpack('>H', data[32:34])[0]
 
         offset = 34
         
@@ -213,8 +213,10 @@ def main():
     parser = argparse.ArgumentParser(description="Play or render an AY/YM chiptune file.")
     parser.add_argument("input_file", help="Path to the .ym file.")
     parser.add_argument("-p", "--play", action="store_true", help="Play the file live instead of rendering to WAV.")
-    parser.add_argument("-o", "--output", default="output_ym.wav", help="Output WAV file name (default: output_ym.wav).")
-    parser.add_argument("--mame", action="store_true", help="Use the MAME emulation engine (mono) instead of Caprice32 (stereo).")
+    parser.add_argument("-o", "--output", default="output_ym.wav", help="Output WAV file name.")
+    parser.add_argument(
+        "--mame", action="store_true", help="Use the MAME emulation engine (mono) instead of Caprice32 (stereo)."
+    )
     
     args = parser.parse_args()
     

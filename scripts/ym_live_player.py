@@ -1,9 +1,8 @@
-import struct
-import sys
-import os
-import ay8910_wrapper as ay
-import time
 import argparse
+import struct
+import time
+
+import ay8910_wrapper as ay
 
 # Try to import lhafile for compressed .ym files
 try:

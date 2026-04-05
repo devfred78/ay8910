@@ -1,5 +1,6 @@
-import wave
 import struct
+import wave
+
 
 def read_first_samples(path, count=1000):
     print(f"\nFirst samples of {path} (raw values):")

@@ -1,7 +1,8 @@
-import ay8910_wrapper as ay
-import wave
 import struct
-import numpy as np
+import wave
+
+import ay8910_wrapper as ay
+
 
 def generate_tone_mame(clock, sr, freq, duration):
     psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)

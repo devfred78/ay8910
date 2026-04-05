@@ -1,5 +1,5 @@
-import sys
 import os
+
 
 def compare_files(file1, file2, max_diffs=10):
     size1 = os.path.getsize(file1)

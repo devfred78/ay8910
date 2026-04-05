@@ -1,6 +1,9 @@
 import unittest
-import ay8910_wrapper as ay
+
 import numpy as np
+
+import ay8910_wrapper as ay
+
 
 class TestAY8910MAME(unittest.TestCase):
 

@@ -1,6 +1,6 @@
-import wave
-import sys
 import os
+import wave
+
 
 def strip_metadata(input_path, output_path):
     print(f"Reading {input_path}...")
