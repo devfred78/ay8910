@@ -12,6 +12,9 @@ license = { text = "MIT" }
 authors = [
     { name = "devfred78", email = "devfred78@gmail.com" }
 ]
+urls = {
+    "Homepage" = "https://github.com/devfred78/ay8910"
+}
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
