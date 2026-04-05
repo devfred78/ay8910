@@ -1,7 +1,7 @@
 # This file makes the directory a Python package.
 
 # Import the native module to make it accessible.
-from .ay8910_wrapper import *
+from .ay8910_wrapper import *  # noqa: F403
 from .direct_output import DirectOutput
 
 # Add live output capabilities to the classes
