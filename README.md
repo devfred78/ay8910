@@ -125,48 +125,15 @@ psg_cpc.set_stereo_mix(255, 13, 170, 170, 13, 255)
 stereo_samples = psg_cpc.generate(num_samples)
 ```
 
-## For Developers: Building from Source
+## Contributing Guide
 
-If you want to modify the code, you need to build the project from source.
+If you wish to contribute to the project or compile it from source, please refer to our **[Contributing Guide](CONTRIBUTE.md)**.
 
-1.  **Clone the repository and create a virtual environment:**
-    ```sh
-    git clone https://github.com/devfred78/ay8910.git
-    cd your-repo
-    uv venv
-    # On Windows PowerShell
-    .venv\Scripts\activate
-    # On Linux/macOS/MSYS2
-    # source .venv/bin/activate
-    ```
-
-2.  **Install in editable mode:**
-    This command will compile the C++ core and make the Python wrapper available in your environment.
-    ```sh
-    uv pip install -e .
-    ```
-3.  **Build the wheel for distribution:**
-    ```sh
-    uv build
-    ```
-    The final `.whl` file will be in the `dist/` directory.
-
-## Running Tests
-
-The project includes a suite of unit tests to verify the functionality of the wrapper and the emulation core.
-
-1.  **Install test dependencies:**
-    The tests require `numpy`.
-    ```sh
-    uv pip install numpy
-    ```
-
-2.  **Run the tests:**
-    From the root directory of the project, run the `unittest` discovery command:
-    ```sh
-    uv run python -m unittest discover -s tests
-    ```
-    This will find and execute all tests in the `tests/` directory.
+It contains all the necessary information about:
+- The development workflow (**GitHub Flow**)
+- Using **uv** for environment management
+- Compilation and test commands
+- Continuous integration processes (GitHub Actions)
 
 ## Acknowledgments
 
