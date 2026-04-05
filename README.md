@@ -44,15 +44,15 @@ python scripts\ym_live_player.py PATH\TO\YM_FILE.YM
 
 ## Installation
 
-1.  **Download the Wheel File**: Go to the [Releases](https://github.com/devfrd78/ay8910/releases) page of this project and download the latest `.whl` file for your system (e.g., `ay8910_wrapper-0.1.0-cp314-cp314-win_amd64.whl`).
+You can install the library directly from [PyPI](https://pypi.org/project/ay8910-wrapper/):
 
-2.  **Install with `pip`**: Open a terminal and use `pip` (or `uv pip`) to install the downloaded file:
-    ```sh
-    # Make sure you are in the same directory as the downloaded .whl file
-    # or provide the full path to it.
-    pip install ay8910_wrapper-0.1.0-cp314-cp314-win_amd64.whl
-    ```
-    This will also install the necessary dependency (`lhafile`).
+```sh
+pip install ay8910_wrapper
+```
+
+This will automatically install the necessary dependencies (`lhafile`, `numpy`, `sounddevice`).
+
+For developers who want to compile from source or contribute, please refer to the [Contributing Guide](CONTRIBUTE.md).
 
 ## Basic Usage in Python (Legacy MAME engine)
 
