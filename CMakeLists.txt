@@ -19,6 +19,10 @@ add_library(ay8910_cpp_lib
 # Specify its include directory
 target_include_directories(ay8910_cpp_lib PUBLIC ay8910_cpp_lib)
 
+# Enable Position Independent Code (-fPIC) for the static library,
+# required to link it into the shared Python module on Linux.
+set_target_properties(ay8910_cpp_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
+
 # --- Python Module ---
 # Find pybind11 (provided by scikit-build-core)
 find_package(pybind11 CONFIG REQUIRED)
