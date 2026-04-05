@@ -124,7 +124,7 @@ When a Pull Request is opened, the following actions are automatically launched 
     - Compilation of the project on **Linux, Windows, and macOS**.
     - Execution of unit tests on **Python 3.8 and 3.13** versions.
 
-All these steps must be green before a PR can be merged.
+Additionally, when a **version tag** (starting with `v`) is pushed to the repository, the **Build and Publish** workflow is triggered to automatically build wheels for all platforms and publish them to **PyPI**.
 
 ---
 
