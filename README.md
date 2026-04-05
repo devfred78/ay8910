@@ -52,7 +52,7 @@ pip install ay8910_wrapper
 
 This will automatically install the necessary dependencies (`lhafile`, `numpy`, `sounddevice`).
 
-For developers who want to compile from source or contribute, please refer to the [Contributing Guide](CONTRIBUTE.md).
+For developers who want to compile from source or contribute, please refer to the [Contributing Guide](https://github.com/devfred78/ay8910/blob/main/CONTRIBUTE.md).
 
 ## Basic Usage in Python (Legacy MAME engine)
 
@@ -109,7 +109,7 @@ print("Generated 'tone_output.wav'")
 
 ```
 
-For a complete list of all available functions, classes, and constants, please see the [API Reference](REFERENCE.md).
+For a complete list of all available functions, classes, and constants, please see the [API Reference](https://github.com/devfred78/ay8910/blob/main/REFERENCE.md).
 
 ## Recommended: Caprice32 (Amstrad CPC) Emulation
 
@@ -127,7 +127,7 @@ stereo_samples = psg_cpc.generate(num_samples)
 
 ## Contributing Guide
 
-If you wish to contribute to the project or compile it from source, please refer to our **[Contributing Guide](CONTRIBUTE.md)**.
+If you wish to contribute to the project or compile it from source, please refer to our **[Contributing Guide](https://github.com/devfred78/ay8910/blob/main/CONTRIBUTE.md)**.
 
 It contains all the necessary information about:
 - The development workflow (**GitHub Flow**)
@@ -142,3 +142,8 @@ This project relies on the incredible work of the following open-source projects
 - **[MAME](https://github.com/mamedev/mame)**: The original AY-3-8910 and YM2149 emulation cores were derived from the MAME project. Their commitment to accuracy and historical preservation is a cornerstone of this library.
 - **[Caprice32](https://github.com/ColinPitrat/caprice32)**: The Amstrad CPC-specific PSG emulation logic and amplitude tables were integrated from the Caprice32 project, providing authentic sound for CPC-related audio tasks.
 - **[Sergey Bulba](http://bulba.at.gz.ru/)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 engine, which are essential for reproducing the characteristic sound of these chips.
+- **[Gemini & Junie](https://github.com/google-gemini)**: This project was built with the assistance of AI, demonstrating the potential of human-AI collaboration in software development.
+
+## License
+This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/devfred78/ay8910/blob/main/LICENSE.md) file for details.
+The original MAME and Caprice32 cores have their own licensing terms (see [LICENSE_MAME.md](https://github.com/devfred78/ay8910/blob/main/ay8910_cpp_lib/LICENSE_MAME.md)).
