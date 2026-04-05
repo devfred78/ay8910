@@ -4,8 +4,8 @@ build-backend = "scikit_build_core.build"
 
 [project]
 name = "ay8910_wrapper"
-version = "0.5.0"
-description = "A Python wrapper for a standalone AY-3-8910 emulator core from MAME."
+version = "0.6.0"
+description = "A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis."
 readme = "README.md"
 requires-python = ">=3.8"
 license = { text = "BSD-3-Clause" }
@@ -33,6 +33,23 @@ cmake.source-dir = "."
 cmake.args = ["-DCMAKE_BUILD_TYPE=Release"]
 wheel.packages = ["src/ay8910_wrapper"]
 install.strip = false
+
+[project.optional-dependencies]
+test = [
+    "pytest",
+    "pytest-cov",
+]
+dev = [
+    "ruff",
+    "mypy",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py38"
+
+[tool.ruff.lint]
+select = ["E", "F", "B", "I"]
 
 [tool.cibuildwheel]
 # Build only for 64-bit and standard Python versions (adjust as needed)
