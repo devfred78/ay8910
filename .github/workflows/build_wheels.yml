@@ -6,6 +6,10 @@ on:
       - 'v*'
   workflow_dispatch:
 
+env:
+  # Force GitHub Actions to use Node.js 24 as per the deprecation warning
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build_wheels:
     name: Build wheels on ${{ matrix.os }}
@@ -19,6 +23,8 @@ jobs:
 
       - name: Build wheels
         uses: pypa/cibuildwheel@v2.21.3
+        env:
+          CIBW_PRERELEASE_PYTHONS: True
 
       - uses: actions/upload-artifact@v4
         with:
