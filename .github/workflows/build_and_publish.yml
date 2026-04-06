@@ -5,6 +5,10 @@ on:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to build (e.g. 0.7.4)'
+        required: false
 
 env:
   # Force GitHub Actions to use Node.js 24 as per the deprecation warning
@@ -21,6 +25,21 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Set version
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "Setting version to $VERSION"
+          if [[ "$OSTYPE" == "darwin"* ]]; then
+            sed -i '' "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+          else
+            sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
+          fi
+
       - name: Build wheels
         uses: pypa/cibuildwheel@v3.4.1
         env:
@@ -36,6 +55,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+
+      - name: Set version
+        shell: bash
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "Setting version to $VERSION"
+          sed -i "s/^version = \".*\"/version = \"$VERSION\"/" pyproject.toml
 
       - name: Build sdist
         run: pipx run build --sdist
