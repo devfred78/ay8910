@@ -2,7 +2,7 @@ import struct
 import wave
 
 
-def read_first_samples(path, count=1000):
+def read_first_samples(path: str, count: int = 1000) -> None:
     print(f"\nFirst samples of {path} (raw values):")
     try:
         with wave.open(path, 'rb') as w:

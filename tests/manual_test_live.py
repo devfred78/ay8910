@@ -3,7 +3,7 @@ import time
 import ay8910_wrapper as ay
 
 
-def test_live_audio():
+def test_live_audio() -> None:
     print("Test de lecture audio en direct (Caprice32) via nouvelle API...")
     sample_rate = 44100
     clock = 1000000 # 1 MHz

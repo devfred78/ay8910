@@ -21,14 +21,16 @@ try:
 except ImportError:
     sd = None
 
-def read_nt_string(data, offset):
+from typing import List, Tuple, Optional, Any, Union
+
+def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
     """Reads a null-terminated string from bytes."""
     end = data.find(b'\0', offset)
     if end == -1:
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
-def play_ym(filename, output_wav, live_play, engine="cap32"):
+def play_ym(filename: str, output_wav: str, live_play: bool, engine: str = "cap32") -> None:
     if live_play and sd is None:
         print("ERROR: The 'sounddevice' and/or 'numpy' libraries are not installed.", file=sys.stderr)
         print("Live playback is not available. Please install them by running:", file=sys.stderr)
@@ -145,7 +147,7 @@ def play_ym(filename, output_wav, live_play, engine="cap32"):
         # --- Live Playback using sounddevice ---
         print(f"\nPlaying live ({'Stereo' if channels == 2 else 'Mono'})... Press Ctrl+C to stop.")
         
-        def callback(outdata, frames_to_gen, time_info, status):
+        def callback(outdata: np.ndarray, frames_to_gen: int, time_info: Any, status: sd.CallbackFlags) -> None:
             if status:
                 print(status, file=sys.stderr)
             

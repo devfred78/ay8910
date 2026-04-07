@@ -1,18 +1,19 @@
 import threading
+from typing import Any, Optional, Union
 
 import numpy as np
 import sounddevice as sd
 
 
 class DirectOutput:
-    def __init__(self, device, sample_rate=44100, channels=1):
-        self.device = device
-        self.sample_rate = sample_rate
-        self.channels = channels
-        self.stream = None
-        self._lock = threading.Lock()
+    def __init__(self, device: Any, sample_rate: int = 44100, channels: int = 1) -> None:
+        self.device: Any = device
+        self.sample_rate: int = sample_rate
+        self.channels: int = channels
+        self.stream: Optional[sd.OutputStream] = None
+        self._lock: threading.Lock = threading.Lock()
 
-    def _callback(self, outdata, frames, time, status):
+    def _callback(self, outdata: np.ndarray, frames: int, time: Any, status: sd.CallbackFlags) -> None:
         with self._lock:
             if self.channels == 2:
                 # Caprice32 version
@@ -23,7 +24,7 @@ class DirectOutput:
                 chunk = self.device.generate(frames, self.sample_rate)
                 outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, 1)
 
-    def start(self):
+    def start(self) -> None:
         if self.stream is None:
             self.stream = sd.OutputStream(
                 samplerate=self.sample_rate,
@@ -33,7 +34,7 @@ class DirectOutput:
             )
             self.stream.start()
 
-    def stop(self):
+    def stop(self) -> None:
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()

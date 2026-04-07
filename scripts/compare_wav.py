@@ -1,7 +1,7 @@
 import os
 
 
-def compare_files(file1, file2, max_diffs=10):
+def compare_files(file1: str, file2: str, max_diffs: int = 10) -> None:
     size1 = os.path.getsize(file1)
     size2 = os.path.getsize(file2)
     

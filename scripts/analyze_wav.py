@@ -3,7 +3,7 @@ import sys
 import wave
 
 
-def analyze_wav(path):
+def analyze_wav(path: str) -> None:
     print(f"\nAnalyzing {path}:")
     try:
         with wave.open(path, 'rb') as w:

@@ -10,14 +10,16 @@ try:
 except ImportError:
     lhafile = None
 
-def read_nt_string(data, offset):
+from typing import Tuple
+
+def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
     """Reads a null-terminated string."""
     end = data.find(b'\0', offset)
     if end == -1:
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
-def play_ym_live(filename, engine="cap32"):
+def play_ym_live(filename: str, engine: str = "cap32") -> None:
     print(f"Playing {filename}...")
     try:
         with open(filename, 'rb') as f:

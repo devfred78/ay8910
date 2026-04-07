@@ -4,7 +4,9 @@ import wave
 import ay8910_wrapper as ay
 
 
-def generate_tone_mame(clock, sr, freq, duration):
+from typing import List
+
+def generate_tone_mame(clock: int, sr: int, freq: float, duration: int) -> List[int]:
     psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
     psg.set_flags(ay.AY8910_LEGACY_OUTPUT | ay.AY8910_SINGLE_OUTPUT)
     psg.start()
@@ -27,7 +29,7 @@ def generate_tone_mame(clock, sr, freq, duration):
     samples = psg.generate(sr * duration, sr)
     return samples
 
-def generate_tone_cap32(clock, sr, freq, duration):
+def generate_tone_cap32(clock: int, sr: int, freq: float, duration: int) -> List[int]:
     psg = ay.ay8912_cap32(clock, sr)
     psg.reset()
     
@@ -57,7 +59,7 @@ def generate_tone_cap32(clock, sr, freq, duration):
         samples_mono.append((samples_stereo[i] + samples_stereo[i+1]) // 2)
     return samples_mono
 
-def save_wav(filename, samples, sr):
+def save_wav(filename: str, samples: List[int], sr: int) -> None:
     with wave.open(filename, 'wb') as f:
         f.setnchannels(1)
         f.setsampwidth(2)

@@ -7,7 +7,7 @@ import ay8910_wrapper as ay
 
 class TestAY8910MAME(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a fresh AY8910 instance before each test."""
         self.clock = 2000000  # 2 MHz
         self.sample_rate = 44100
@@ -16,12 +16,12 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.start()
         self.psg.reset()
 
-    def test_initialization(self):
+    def test_initialization(self) -> None:
         """Test that the AY8910 emulator can be initialized."""
         self.assertIsInstance(self.psg, ay.ay8910)
         self.assertIsNotNone(self.psg)
 
-    def test_tone_generation(self):
+    def test_tone_generation(self) -> None:
         """Test that generating a simple tone produces non-zero samples."""
         # Program a Middle C tone on Channel A
         self.psg.address_w(7)
@@ -42,7 +42,7 @@ class TestAY8910MAME(unittest.TestCase):
         self.assertEqual(len(samples), num_samples)
         self.assertTrue(np.any(samples), "Generated samples should not be all zero.")
 
-    def test_reset_mutes_output(self):
+    def test_reset_mutes_output(self) -> None:
         """Test that a reset mutes the output."""
         # First, generate some sound
         self.psg.address_w(7)
@@ -71,7 +71,7 @@ class TestAY8910MAME(unittest.TestCase):
         self.assertLess(std_dev, 1.0, 
             f"Signal should be silent (near-zero standard deviation) after reset, but std dev was {std_dev}")
 
-    def test_different_psg_types(self):
+    def test_different_psg_types(self) -> None:
         """Test initialization with different PSG types (AY vs YM)."""
         psg_ay = ay.ay8910(ay.psg_type.PSG_TYPE_AY, self.clock, 1, 0)
         self.assertIsInstance(psg_ay, ay.ay8910)
@@ -79,7 +79,7 @@ class TestAY8910MAME(unittest.TestCase):
         psg_ym = ay.ay8910(ay.psg_type.PSG_TYPE_YM, self.clock, 1, 0)
         self.assertIsInstance(psg_ym, ay.ay8910)
 
-    def test_noise_generation(self):
+    def test_noise_generation(self) -> None:
         """Test that enabling noise produces a signal."""
         # Enable Noise on Channel A, Tone disabled
         self.psg.address_w(7)
@@ -97,7 +97,7 @@ class TestAY8910MAME(unittest.TestCase):
         # Noise should be somewhat random, so checking std dev
         self.assertGreater(np.std(samples), 100, "Noise should have significant variance.")
 
-    def test_envelope_generation(self):
+    def test_envelope_generation(self) -> None:
         """Test that envelope hardware produces a signal."""
         # Enable Tone A, Volume controlled by Envelope
         self.psg.address_w(7)
@@ -126,7 +126,7 @@ class TestAY8910MAME(unittest.TestCase):
         samples = np.array(self.psg.generate(4000, self.sample_rate))
         self.assertTrue(np.any(samples), "Envelope should produce non-zero samples.")
 
-    def test_output_flags(self):
+    def test_output_flags(self) -> None:
         """Test that different output flags produce different (but non-zero) results."""
         # Setup a tone
         self.psg.address_w(7)
@@ -159,19 +159,19 @@ class TestAY8910MAME(unittest.TestCase):
 
 class TestAY8912Caprice32(unittest.TestCase):
 
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up a fresh ay8912_cap32 instance before each test."""
         self.clock = 1000000  # 1 MHz (standard for YM in some contexts, Caprice32 handles it)
         self.sample_rate = 44100
         self.psg = ay.ay8912_cap32(self.clock, self.sample_rate)
         self.psg.reset()
 
-    def test_initialization(self):
+    def test_initialization(self) -> None:
         """Test that the Caprice32 emulator can be initialized."""
         self.assertIsInstance(self.psg, ay.ay8912_cap32)
         self.assertIsNotNone(self.psg)
 
-    def test_stereo_generation(self):
+    def test_stereo_generation(self) -> None:
         """Test that Caprice32 generates interleaved stereo samples (length is 2 * num_samples)."""
         num_samples = 1000
         samples = self.psg.generate(num_samples)
@@ -179,7 +179,7 @@ class TestAY8912Caprice32(unittest.TestCase):
         # In Caprice32, generate returns num_samples * 2 (interleaved stereo)
         self.assertEqual(len(samples), num_samples * 2)
 
-    def test_tone_generation_stereo(self):
+    def test_tone_generation_stereo(self) -> None:
         """Test that generating a tone produces sound in both channels."""
         # Enable Channel A
         self.psg.address_w(7)
@@ -208,7 +208,7 @@ class TestAY8912Caprice32(unittest.TestCase):
         self.assertTrue(np.any(left), "Left channel should have sound")
         self.assertFalse(np.any(right), "Right channel should be silent (only A enabled, A is full Left)")
 
-    def test_panning(self):
+    def test_panning(self) -> None:
         """Test that set_stereo_mix correctly pans audio."""
         # Enable Channel A
         self.psg.address_w(7)
@@ -226,7 +226,7 @@ class TestAY8912Caprice32(unittest.TestCase):
         self.assertFalse(np.any(left), "Left channel should be silent")
         self.assertTrue(np.any(right), "Right channel should have sound")
 
-    def test_reset_cap32(self):
+    def test_reset_cap32(self) -> None:
         """Test that reset in Caprice32 mutes the output."""
         # Enable sound
         self.psg.address_w(7)
@@ -242,7 +242,7 @@ class TestAY8912Caprice32(unittest.TestCase):
         # Caprice32 reset should clear volumes and registers
         self.assertFalse(np.any(samples_after), "Should be silent after reset")
 
-    def test_noise_cap32(self):
+    def test_noise_cap32(self) -> None:
         """Test noise generation in Caprice32."""
         # Enable Noise on A, Tone off
         self.psg.address_w(7)

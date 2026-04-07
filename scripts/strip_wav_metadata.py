@@ -2,7 +2,7 @@ import os
 import wave
 
 
-def strip_metadata(input_path, output_path):
+def strip_metadata(input_path: str, output_path: str) -> None:
     print(f"Reading {input_path}...")
     try:
         with wave.open(input_path, 'rb') as w_in:
