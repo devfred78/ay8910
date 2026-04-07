@@ -23,7 +23,28 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
     m.attr("PSG_HAS_EXPANDED_MODE") = py::int_(static_cast<int>(ay8910_device::PSG_HAS_EXPANDED_MODE));
 
     // MAME version
-    py::class_<ay8910_device>(m, "ay8910", "Main class for instantiating and controlling an AY-3-8910 emulator based on the MAME implementation.")
+    py::class_<ay8910_device>(m, "ay8910", "Main class for instantiating and controlling an AY-3-8910 emulator based on the MAME implementation.\n\n"
+                                          "The emulated chip features 16 internal registers (0-15) to control 3 square wave channels and a noise generator.\n\n"
+                                          "### PSG Registers Reference (0-15)\n\n"
+                                          "* **0-1**: Channel A Tone Period (12-bit, Fine/Coarse).\n"
+                                          "* **2-3**: Channel B Tone Period (12-bit, Fine/Coarse).\n"
+                                          "* **4-5**: Channel C Tone Period (12-bit, Fine/Coarse).\n"
+                                          "* **6**: Noise Period (5-bit).\n"
+                                          "* **7**: Mixer Control (Tone/Noise enable for A/B/C, active-low).\n"
+                                          "* **8-10**: Amplitude/Volume for A/B/C (0-15 fixed or 16 for Envelope).\n"
+                                          "* **11-12**: Envelope Period (16-bit, Fine/Coarse).\n"
+                                          "* **13**: Envelope Shape (Attack, Decay, Sustain, Release).\n"
+                                          "* **14-15**: I/O Ports A and B Data.\n\n"
+                                          "### Usage Examples\n\n"
+                                          "**Low-level access (hardware-like):**\n"
+                                          "```python\n"
+                                          "chip.address_w(0) # Select Channel A Fine Tone register\n"
+                                          "chip.data_w(255)   # Write value\n"
+                                          "```\n\n"
+                                          "**High-level access (direct register write):**\n"
+                                          "```python\n"
+                                          "chip.set_register(0, 255) # Directly write to Channel A Fine Tone register\n"
+                                          "```")
         .def(py::init<ay8910_device::psg_type_t, int, int, int, int>(),
              py::arg("psg_type"), py::arg("clock"), py::arg("streams"), py::arg("ioports"), py::arg("feature") = static_cast<int>(ay8910_device::PSG_DEFAULT),
              "Constructor for the emulator instance.\n\n"
@@ -57,7 +78,28 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
              "    List[int]: Mono audio samples ranging from -32768 to 32767.");
 
     // Caprice32 version
-    py::class_<ay8912_cap32>(m, "ay8912_cap32", "Specialized emulator class based on the Caprice32 (Amstrad CPC) implementation. Natively stereo.")
+    py::class_<ay8912_cap32>(m, "ay8912_cap32", "Specialized emulator class based on the Caprice32 (Amstrad CPC) implementation. Natively stereo.\n\n"
+                                                "The emulated chip features 16 internal registers (0-15) to control 3 square wave channels and a noise generator.\n\n"
+                                                "### PSG Registers Reference (0-15)\n\n"
+                                                "* **0-1**: Channel A Tone Period (12-bit, Fine/Coarse).\n"
+                                                "* **2-3**: Channel B Tone Period (12-bit, Fine/Coarse).\n"
+                                                "* **4-5**: Channel C Tone Period (12-bit, Fine/Coarse).\n"
+                                                "* **6**: Noise Period (5-bit).\n"
+                                                "* **7**: Mixer Control (Tone/Noise enable for A/B/C, active-low).\n"
+                                                "* **8-10**: Amplitude/Volume for A/B/C (0-15 fixed or 16 for Envelope).\n"
+                                                "* **11-12**: Envelope Period (16-bit, Fine/Coarse).\n"
+                                                "* **13**: Envelope Shape (Attack, Decay, Sustain, Release).\n"
+                                                "* **14-15**: I/O Ports A and B Data.\n\n"
+                                                "### Usage Examples\n\n"
+                                                "**Low-level access (hardware-like):**\n"
+                                                "```python\n"
+                                                "chip.address_w(0) # Select Channel A Fine Tone register\n"
+                                                "chip.data_w(255)   # Write value\n"
+                                                "```\n\n"
+                                                "**High-level access (direct register write):**\n"
+                                                "```python\n"
+                                                "chip.set_register(0, 255) # Directly write to Channel A Fine Tone register\n"
+                                                "```")
         .def(py::init<int, int>(), py::arg("clock"), py::arg("sample_rate"),
              "Constructor for the Caprice32 PSG instance.\n\n"
              "Args:\n"

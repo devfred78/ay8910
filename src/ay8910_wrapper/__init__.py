@@ -4,6 +4,26 @@ This package provides a Python wrapper for the standalone AY-3-8910 emulators
 
 It includes classes to emulate the PSG chip and high-level methods for live
 audio playback.
+
+### Quick Start
+
+```python
+import ay8910_wrapper as ay
+
+# Create a MAME-based AY-3-8910 emulator
+chip = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock=2000000, streams=1, ioports=0)
+chip.start()
+
+# Enable live playback
+chip.play()
+
+# Set a tone on Channel A (high-level)
+chip.set_register(0, 255) # Fine tune
+chip.set_register(8, 15)  # Max volume
+
+# Stop playback
+# chip.stop()
+```
 """
 
 from typing import Any, Dict, Type
