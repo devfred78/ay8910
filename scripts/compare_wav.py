@@ -1,7 +1,18 @@
+"""
+Compares two WAV files byte-by-byte to check for differences.
+"""
 import os
 
 
 def compare_files(file1: str, file2: str, max_diffs: int = 10) -> None:
+    """
+    Performs a byte-by-byte comparison of two files.
+
+    Args:
+        file1: Path to the first file.
+        file2: Path to the second file.
+        max_diffs: Maximum number of differences to display.
+    """
     size1 = os.path.getsize(file1)
     size2 = os.path.getsize(file2)
     

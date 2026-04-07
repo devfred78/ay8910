@@ -17,12 +17,16 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.reset()
 
     def test_initialization(self) -> None:
-        """Test that the AY8910 emulator can be initialized."""
+        """
+        Tests that the AY8910 emulator can be correctly initialized.
+        """
         self.assertIsInstance(self.psg, ay.ay8910)
         self.assertIsNotNone(self.psg)
 
     def test_tone_generation(self) -> None:
-        """Test that generating a simple tone produces non-zero samples."""
+        """
+        Tests that generating a simple tone produces non-zero audio samples.
+        """
         # Program a Middle C tone on Channel A
         self.psg.address_w(7)
         self.psg.data_w(0b00111110) 
@@ -43,7 +47,9 @@ class TestAY8910MAME(unittest.TestCase):
         self.assertTrue(np.any(samples), "Generated samples should not be all zero.")
 
     def test_reset_mutes_output(self) -> None:
-        """Test that a reset mutes the output."""
+        """
+        Tests that calling reset() mutes the audio output.
+        """
         # First, generate some sound
         self.psg.address_w(7)
         self.psg.data_w(0b00111110)
@@ -255,5 +261,4 @@ class TestAY8912Caprice32(unittest.TestCase):
         samples = np.array(self.psg.generate(1000))
         self.assertTrue(np.any(samples), "Noise should produce samples in Caprice32")
 
-if __name__ == '__main__':
-    unittest.main()
+if __name__ ==

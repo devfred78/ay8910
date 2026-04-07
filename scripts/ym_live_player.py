@@ -1,3 +1,9 @@
+"""
+Live YM file player using the .play() API.
+
+This script demonstrates how to use the high-level playback API added to the
+emulator classes in the ay8910_wrapper package.
+"""
 import argparse
 import struct
 import time
@@ -13,13 +19,29 @@ except ImportError:
 from typing import Tuple
 
 def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
-    """Reads a null-terminated string."""
+    """
+    Reads a null-terminated string from bytes.
+
+    Args:
+        data: Byte array to read from.
+        offset: Initial offset.
+
+    Returns:
+        The decoded string and the next offset.
+    """
     end = data.find(b'\0', offset)
     if end == -1:
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
 def play_ym_live(filename: str, engine: str = "cap32") -> None:
+    """
+    Plays a YM chiptune file in real-time.
+
+    Args:
+        filename: Path to the .ym file.
+        engine: The engine to use ('cap32' or 'mame').
+    """
     print(f"Playing {filename}...")
     try:
         with open(filename, 'rb') as f:
@@ -132,10 +154,3 @@ def main():
     parser.add_argument("input_file", help="Path to the .ym file")
     parser.add_argument("--mame", action="store_true", help="Use MAME engine (mono) instead of Caprice32 (stereo)")
     
-    args = parser.parse_args()
-    engine = "mame" if args.mame else "cap32"
-    
-    play_ym_live(args.input_file, engine)
-
-if __name__ == "__main__":
-    main()

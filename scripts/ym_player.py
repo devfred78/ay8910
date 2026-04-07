@@ -1,3 +1,9 @@
+"""
+Utility script to play or render .YM chiptune files.
+
+Supports both MAME (mono) and Caprice32 (stereo) emulation engines.
+Can handle compressed .YM files if the 'lhafile' library is installed.
+"""
 import argparse
 import struct
 import sys
@@ -24,7 +30,16 @@ except ImportError:
 from typing import List, Tuple, Optional, Any, Union
 
 def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
-    """Reads a null-terminated string from bytes."""
+    """
+    Reads a null-terminated string from bytes.
+
+    Args:
+        data: The byte array to read from.
+        offset: Starting offset in the array.
+
+    Returns:
+        A tuple containing (the decoded string, the new offset).
+    """
     end = data.find(b'\0', offset)
     if end == -1:
         return "", len(data)

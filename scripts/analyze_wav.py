@@ -1,9 +1,18 @@
+"""
+Statistical analysis of WAV files to check for DC offset, amplitude, etc.
+"""
 import struct
 import sys
 import wave
 
 
 def analyze_wav(path: str) -> None:
+    """
+    Analyzes a WAV file and prints its parameters and some statistics.
+
+    Args:
+        path: Path to the WAV file.
+    """
     print(f"\nAnalyzing {path}:")
     try:
         with wave.open(path, 'rb') as w:

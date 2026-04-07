@@ -1,8 +1,18 @@
+"""
+Simple debugging script to print the first samples of WAV files.
+"""
 import struct
 import wave
 
 
 def read_first_samples(path: str, count: int = 1000) -> None:
+    """
+    Prints raw sample values and the mean of the first samples.
+
+    Args:
+        path: Path to the WAV file.
+        count: Number of frames to read.
+    """
     print(f"\nFirst samples of {path} (raw values):")
     try:
         with wave.open(path, 'rb') as w:

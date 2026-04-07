@@ -1,8 +1,18 @@
+"""
+Removes metadata from a WAV file by rewriting it with only essential headers.
+"""
 import os
 import wave
 
 
 def strip_metadata(input_path: str, output_path: str) -> None:
+    """
+    Reads a WAV file and saves it back without any non-essential metadata.
+
+    Args:
+        input_path: Path to the input file.
+        output_path: Path for the cleaned output file.
+    """
     print(f"Reading {input_path}...")
     try:
         with wave.open(input_path, 'rb') as w_in:
