@@ -46,6 +46,10 @@ dev = [
     "ruff",
     "mypy",
 ]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+]
 
 [tool.ruff]
 line-length = 120
