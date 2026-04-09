@@ -46,3 +46,4 @@ Thumbs.db
 # --- PROJECT SPECIFICS --
 YM example files/
 *.wav
+site/
