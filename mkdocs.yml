@@ -1,6 +1,6 @@
 site_name: AY-3-8910 Sound Chip Wrapper
 site_description: Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators.
-site_url: https://github.com/devfred78/ay8910
+site_url: https://devfred78.github.io/ay8910
 repo_url: https://github.com/devfred78/ay8910
 edit_uri: edit/main/docs/
 
