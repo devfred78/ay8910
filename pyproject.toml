@@ -7,7 +7,7 @@ name = "ay8910_wrapper"
 version = "0.0.0"
 description = "A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis."
 readme = "README.md"
-requires-python = ">=3.9,<3.14"
+requires-python = ">=3.9,<3.15"
 license = { text = "MIT" }
 authors = [
     { name = "devfred78", email = "97401939+devfred78@users.noreply.github.com" }
@@ -21,7 +21,7 @@ classifiers = [
 ]
 dependencies = [
     "lhafile",
-    "numpy>=1.26.0,<2.0.0",
+    "numpy>=2.0.2",
     "sounddevice>=0.5.5",
 ]
 
@@ -61,7 +61,7 @@ select = ["E", "F", "B", "I"]
 
 [tool.cibuildwheel]
 # Build only for 64-bit and standard Python versions (adjust as needed)
-build = ["cp38-*", "cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*"]
+build = ["cp39-*", "cp310-*", "cp311-*", "cp312-*", "cp313-*", "cp314-*"]
 skip = ["*-win32", "*-manylinux_i686", "pp*"]
 # Use manylinux_2_28 for modern glibc compatibility
 manylinux-x86_64-image = "manylinux_2_28"
