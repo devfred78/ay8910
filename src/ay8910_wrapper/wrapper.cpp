@@ -224,17 +224,85 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
              "    List[int]: A list of num_samples * 2 integers (alternating Left and Right).");
 
     // Sergey Bulba (Ay_Emul31b) version
-    py::enum_<ay_emul31::ChType>(m, "ay_emul31_chip_type")
-        .value("AY_Chip", ay_emul31::ChType::AY_Chip)
-        .value("YM_Chip", ay_emul31::ChType::YM_Chip)
+    py::enum_<ay_emul31::ChType>(m, "ay_emul31_chip_type", "Enum for selecting the chip model to emulate in the Ay_Emul31 engine.")
+        .value("AY_Chip", ay_emul31::ChType::AY_Chip, "Emulates the AY-3-8910 chip.")
+        .value("YM_Chip", ay_emul31::ChType::YM_Chip, "Emulates the Yamaha YM2149 chip.")
         .export_values();
 
-    py::class_<ay_emul31::TSoundChip>(m, "ay_emul31", "Emulator based on Sergey Bulba's Ay_Emul29+ (version 3.1) implementation.")
-        .def(py::init<>())
-        .def_readwrite("chip_type", &ay_emul31::TSoundChip::chip_type)
-        .def("reset", &ay_emul31::TSoundChip::Reset, py::arg("zeroregs") = true)
-        .def("set_register", &ay_emul31::TSoundChip::SetAYRegister)
+    py::class_<ay_emul31::TSoundChip>(m, "ay_emul31", "Emulator class based on Sergey Bulba's Ay_Emul29+ (version 3.1) implementation.\n\n"
+                                                   "This version is a port of the original Pascal source code to C++, providing a mono emulation "
+                                                   "with support for both AY and YM volume tables.\n\n"
+                                                   "### PSG Registers Reference (0-15)\n\n"
+                                                   "#### Tone Period (Registers 0-5)\n"
+                                                   "These registers control the pitch of the three square wave channels.\n\n"
+                                                   "| Register | Function | Bits |\n"
+                                                   "| :--- | :--- | :--- |\n"
+                                                   "| **0** | Channel A Fine Tune | 8-bit |\n"
+                                                   "| **1** | Channel A Coarse Tune | 4-bit |\n"
+                                                   "| **2** | Channel B Fine Tune | 8-bit |\n"
+                                                   "| **3** | Channel B Coarse Tune | 4-bit |\n"
+                                                   "| **4** | Channel C Fine Tune | 8-bit |\n"
+                                                   "| **5** | Channel C Coarse Tune | 4-bit |\n\n"
+                                                   "#### Noise Period (Register 6)\n"
+                                                   "Controls the frequency of the pseudo-random noise generator.\n\n"
+                                                   "| Register | Function | Bits |\n"
+                                                   "| :--- | :--- | :--- |\n"
+                                                   "| **6** | Noise Period | 5-bit |\n\n"
+                                                   "#### Mixer Control (Register 7)\n"
+                                                   "Enables or disables Tone and Noise for each of the three channels. Bits are active-low.\n\n"
+                                                   "| Bit | Function |\n"
+                                                   "| :--- | :--- |\n"
+                                                   "| **0** | Tone A (0: On, 1: Off) |\n"
+                                                   "| **1** | Tone B (0: On, 1: Off) |\n"
+                                                   "| **2** | Tone C (0: On, 1: Off) |\n"
+                                                   "| **3** | Noise A (0: On, 1: Off) |\n"
+                                                   "| **4** | Noise B (0: On, 1: Off) |\n"
+                                                   "| **5** | Noise C (0: On, 1: Off) |\n\n"
+                                                   "#### Amplitude/Volume (Registers 8-10)\n"
+                                                   "Controls the volume of each channel. A value of 0-15 sets a fixed volume. If bit 4 is set (value 16), the channel follows the hardware envelope.\n\n"
+                                                   "| Register | Function | Range |\n"
+                                                   "| :--- | :--- | :--- |\n"
+                                                   "| **8** | Channel A Amplitude | 0-15 (Fixed) or 16 (Envelope) |\n"
+                                                   "| **9** | Channel B Amplitude | 0-15 (Fixed) or 16 (Envelope) |\n"
+                                                   "| **10** | Channel C Amplitude | 0-15 (Fixed) or 16 (Envelope) |\n\n"
+                                                   "#### Envelope Period (Registers 11-12)\n"
+                                                   "Sets the duration of one envelope cycle (16-bit value).\n\n"
+                                                   "| Register | Function | Bits |\n"
+                                                   "| :--- | :--- | :--- |\n"
+                                                   "| **11** | Envelope Fine Tune | 8-bit |\n"
+                                                   "| **12** | Envelope Coarse Tune | 8-bit |\n\n"
+                                                   "#### Envelope Shape (Register 13)\n"
+                                                   "Controls the shape of the volume variation.\n\n"
+                                                   "| Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |\n"
+                                                   "| :--- | :--- | :--- | :--- | :--- |\n"
+                                                   "| **0** | **0** | **x** | **x** | `\\___` (Single Decay, then Silence) |\n"
+                                                   "| **1** | **0** | **0** | **0** | `\\\\\\\\\\\\\\\\` (Repeating Decay / Sawtooth) |\n"
+                                                   "| **1** | **0** | **1** | **1** | `/\\|/\\|/\\|` (Repeating Attack / Inverse Sawtooth) |\n"
+                                                   "| **1** | **1** | **0** | **0** | `/\\/\\/\\` (Triangle) |\n\n"
+                                                   "### Usage Examples\n\n"
+                                                   "```python\n"
+                                                   "chip = ay.ay_emul31()\n"
+                                                   "chip.chip_type = ay.ay_emul31_chip_type.YM_Chip\n"
+                                                   "chip.set_register(0, 255) # Set Tone A\n"
+                                                   "```")
+        .def(py::init<>(), "Constructor for the Ay_Emul31 emulator instance.")
+        .def_readwrite("chip_type", &ay_emul31::TSoundChip::chip_type, "The type of chip to emulate (AY or YM).")
+        .def("reset", &ay_emul31::TSoundChip::Reset, py::arg("zeroregs") = true,
+             "Resets the emulator state.\n\n"
+             "Args:\n"
+             "    zeroregs (bool): If true, all registers are cleared to zero (default: true).")
+        .def("set_register", &ay_emul31::TSoundChip::SetAYRegister, py::arg("reg"), py::arg("value"),
+             "Writes a value to an internal register (0-15).\n\n"
+             "Args:\n"
+             "    reg (int): The register index (0-15).\n"
+             "    value (int): The 8-bit value to write.")
         .def("generate", &ay_emul31::TSoundChip::generate_vector,
              py::arg("num_samples"), py::arg("clock"), py::arg("sample_rate"),
-             "Generates mono audio samples.");
+             "Generates a block of mono audio samples.\n\n"
+             "Args:\n"
+             "    num_samples (int): Number of audio samples to generate.\n"
+             "    clock (int): Master clock frequency in Hz.\n"
+             "    sample_rate (int): Target output sample rate in Hz.\n\n"
+             "Returns:\n"
+             "    List[int]: Mono audio samples ranging from -32768 to 32767.");
 }

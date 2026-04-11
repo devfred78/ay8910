@@ -79,12 +79,12 @@ public:
     void SetAYRegister(int num, uint8_t value);
     void Synthesizer_Logic_Q();
     
-    // Métriques de sortie pour le mixage
+    // Output metrics for mixing
     int GetOutputA() const;
     int GetOutputB() const;
     int GetOutputC() const;
 
-    // Interface simplifiée pour le wrapper
+    // Simplified interface for the wrapper
     void generate(int num_samples, int clock, int sample_rate, int16_t* buffer);
     std::vector<int16_t> generate_vector(int num_samples, int clock, int sample_rate);
     ChType chip_type = ChType::YM_Chip;
@@ -110,7 +110,7 @@ private:
     static uint32_t NoiseGenerator(uint32_t seed);
 };
 
-// Tables d'amplitude
+// Amplitude tables
 extern const uint16_t Amplitudes_AY[16];
 extern const uint16_t Amplitudes_YM[32];
 

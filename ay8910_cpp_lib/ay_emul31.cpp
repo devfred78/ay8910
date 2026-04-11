@@ -39,7 +39,7 @@ void TSoundChip::Reset(bool zeroregs) {
     Noise_EnA = Noise_EnB = Noise_EnC = false;
     Envelope_EnA = Envelope_EnB = Envelope_EnC = false;
     
-    // Initialiser les registres s'ils n'étaient pas à zéro (cas de Reset partiel)
+    // Initialize registers if they weren't zero (case of partial Reset)
     for(int i=0; i<16; ++i) {
         SetAYRegister(i, RegisterAY.Index[i]);
     }
@@ -259,7 +259,7 @@ int TSoundChip::GetOutputA() const {
     bool out = (Ton_A || !Ton_EnA) && ((Noise.Seed & 1) || !Noise_EnA);
     if (!out) return 0;
     int vol = Envelope_EnA ? (RegisterAY.AmplitudeA & 15) : (Ampl >> 1);
-    // Note: Dans Pascal, Ampl varie de 0 à 31.
+    // Note: In Pascal, Ampl varies from 0 to 31.
     return vol;
 }
 
@@ -295,7 +295,7 @@ void TSoundChip::generate(int num_samples, int clock, int sample_rate, int16_t* 
         int32_t mixed;
         if (chip_type == ChType::AY_Chip) {
             mixed = (int32_t)Amplitudes_AY[outA] + Amplitudes_AY[outB] + Amplitudes_AY[outC];
-            // Normalisation approx pour tenir dans int16
+            // Approx normalization to fit in int16
             mixed = (mixed * 32767) / (65535 * 3);
         } else {
             mixed = (int32_t)Amplitudes_YM[outA << 1] + Amplitudes_YM[outB << 1] + Amplitudes_YM[outC << 1];
