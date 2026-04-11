@@ -52,7 +52,7 @@ pip install ay8910_wrapper
 
 This will automatically install the necessary dependencies (`lhafile`, `numpy`, `sounddevice`).
 
-For developers who want to compile from source or contribute, please refer to the [Contributing Guide](https://github.com/devfred78/ay8910/blob/main/CONTRIBUTE.md).
+For developers who want to compile from source or contribute, please refer to the [Contributing Guide](https://devfred78.github.io/ay8910/contribute/).
 
 ## Basic Usage in Python (Legacy MAME engine)
 
@@ -109,7 +109,7 @@ print("Generated 'tone_output.wav'")
 
 ```
 
-For a complete list of all available functions, classes, and constants, please see the [API Reference](https://github.com/devfred78/ay8910/blob/main/REFERENCE.md).
+For a complete list of all available functions, classes, and constants, please see the [API Reference](https://devfred78.github.io/ay8910/reference/).
 
 ## Recommended: Caprice32 (Amstrad CPC) Emulation
 
@@ -127,7 +127,7 @@ stereo_samples = psg_cpc.generate(num_samples)
 
 ## Contributing Guide
 
-If you wish to contribute to the project or compile it from source, please refer to our **[Contributing Guide](https://github.com/devfred78/ay8910/blob/main/CONTRIBUTE.md)**.
+If you wish to contribute to the project or compile it from source, please refer to our **[Contributing Guide](https://devfred78.github.io/ay8910/contribute/)**.
 
 It contains all the necessary information about:
 - The development workflow (**GitHub Flow**)
@@ -145,5 +145,5 @@ This project relies on the incredible work of the following open-source projects
 - **[Gemini & Junie](https://github.com/google-gemini)**: This project was built with the assistance of AI, demonstrating the potential of human-AI collaboration in software development.
 
 ## License
-This project is licensed under the MIT License - see the [LICENSE.md](https://github.com/devfred78/ay8910/blob/main/LICENSE.md) file for details.
+This project is licensed under the MIT License - see the [License](https://devfred78.github.io/ay8910/license/) for details.
 The original MAME and Caprice32 cores have their own licensing terms (see [LICENSE_MAME.md](https://github.com/devfred78/ay8910/blob/main/ay8910_cpp_lib/LICENSE_MAME.md)).
