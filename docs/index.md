@@ -9,6 +9,7 @@ A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring
 > This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
 
 This project contains a standalone C++ library for the AY-3-8910 sound chip. It features three emulation engines:
+
 - **Caprice32-based (`ay8912_cap32`)**: The **recommended** engine for all new projects. It offers superior accuracy, stereo mixing, and integrated live audio support.
 - **Ay_Emul31-based (`ay_emul31`)**: A port of Sergey Bulba's Ay_Emul 3.1. It provides high-quality mono emulation with accurate AY and YM volume tables.
 - **MAME-based (`ay8910`)**: Kept primarily for **historical reasons** and legacy compatibility.
