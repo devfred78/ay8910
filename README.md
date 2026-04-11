@@ -8,8 +8,9 @@ A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring
 >
 > This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
 
-This project contains a standalone C++ library for the AY-3-8910 sound chip. It features two emulation engines:
+This project contains a standalone C++ library for the AY-3-8910 sound chip. It features three emulation engines:
 - **Caprice32-based (`ay8912_cap32`)**: The **recommended** engine for all new projects. It offers superior accuracy, stereo mixing, and integrated live audio support.
+- **Ay_Emul31-based (`ay_emul31`)**: A port of Sergey Bulba's Ay_Emul 3.1. It provides high-quality mono emulation with accurate AY and YM volume tables.
 - **MAME-based (`ay8910`)**: Kept primarily for **historical reasons** and legacy compatibility.
 
 It also includes a Python wrapper to make these emulators accessible from Python scripts, allowing for programmatic chiptune generation and `.ym` file playback.
@@ -38,8 +39,12 @@ psg.stop()
 ```
 
 ```sh
-# Play a .ym file using the new live script
+# Play a .ym file using the new live script (defaults to Caprice32)
 python scripts\ym_live_player.py PATH\TO\YM_FILE.YM
+
+# Use the MAME or Ay_Emul31 engines
+python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --mame
+python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --ay_emul31
 ```
 
 ## Installation
@@ -141,7 +146,8 @@ This project relies on the incredible work of the following open-source projects
 
 - **[MAME](https://github.com/mamedev/mame)**: The original AY-3-8910 and YM2149 emulation cores were derived from the MAME project. Their commitment to accuracy and historical preservation is a cornerstone of this library.
 - **[Caprice32](https://github.com/ColinPitrat/caprice32)**: The Amstrad CPC-specific PSG emulation logic and amplitude tables were integrated from the Caprice32 project, providing authentic sound for CPC-related audio tasks.
-- **[Sergey Bulba](http://bulba.at.gz.ru/)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 engine, which are essential for reproducing the characteristic sound of these chips.
+- **[Ay_Emul](http://bulba.at.gz.ru/)**: The `ay_emul31` engine is based on the work of **Sergey Bulba**. It's a port of his original Pascal source code (version 3.1) to C++.
+- **[Sergey Bulba](http://bulba.at.gz.ru/)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 and Ay_Emul31 engines, which are essential for reproducing the characteristic sound of these chips.
 - **[Gemini & Junie](https://github.com/google-gemini)**: This project was built with the assistance of AI, demonstrating the potential of human-AI collaboration in software development.
 
 ## License

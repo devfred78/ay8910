@@ -113,12 +113,13 @@ Generates a block of audio and returns it as a list of 16-bit signed integers.
 -   **`sample_rate` (`int`)**: The target sample rate in Hertz (e.g., `44100`).
 -   **Returns**: `List[int]` - A list of mono audio samples ranging from -32768 to 32767.
 
-#### `.play(sample_rate=44100)`
+#### `.play(sample_rate=44100, clock=1750000)`
 
 Starts live audio playback. Any changes to registers via `.set_register()` or `.data_w()` will be reflected in the audio output immediately.
 Requires `sounddevice` and `numpy` to be installed.
 
 -   **`sample_rate` (`int`, optional)**: The sample rate for the audio stream. Defaults to 44100.
+-   **`clock` (`int`, optional)**: The master clock frequency of the PSG. Defaults to 1750000.
 
 #### `.stop()`
 
@@ -130,10 +131,17 @@ Stops the live audio playback.
 
 ### `psg_type`
 
-An enumeration for selecting the chip model to emulate.
+An enumeration for selecting the chip model to emulate in the `ay8910` class.
 
--   **`ay.psg_type.PSG_TYPE_AY`**: Emulates the AY-3-8910. This is the most common type.
--   **`ay.psg_type.PSG_TYPE_YM`**: Emulates the YM2149, which has a slightly different volume curve.
+-   **`ay.psg_type.PSG_TYPE_AY`**: Emulates the AY-3-8910.
+-   **`ay.psg_type.PSG_TYPE_YM`**: Emulates the YM2149.
+
+### `ay_emul31_chip_type`
+
+An enumeration for selecting the chip model to emulate in the `ay_emul31` class.
+
+-   **`ay.ay_emul31_chip_type.AY_Chip`**: Emulates the AY-3-8910.
+-   **`ay.ay_emul31_chip_type.YM_Chip`**: Emulates the YM2149.
 
 ### Flag Constants
 
@@ -382,3 +390,91 @@ Generates interleaved stereo audio samples.
 
 -   **`num_samples` (`int`)**: The number of samples to generate.
 -   **Returns**: `List[int]` - A list of `num_samples * 2` integers (alternating Left and Right channels).
+
+#### `.play(sample_rate=44100, clock=1750000)`
+
+Starts live audio playback.
+Requires `sounddevice` and `numpy` to be installed.
+
+-   **`sample_rate` (`int`, optional)**: The sample rate for the audio stream. Defaults to 44100.
+-   **`clock` (`int`, optional)**: The master clock frequency. Defaults to 1750000.
+
+#### `.stop()`
+
+Stops the live audio playback.
+
+---
+
+## The `ay_emul31` Class (Sergey Bulba's Ay_Emul 3.1)
+
+An emulator class based on the **Ay_Emul 3.1** implementation by Sergey Bulba. It provides high-quality mono emulation.
+
+### Usage Example
+
+```python
+import ay8910_wrapper as ay
+
+# Initialize the Ay_Emul31 engine
+chip = ay.ay_emul31()
+
+# Select chip type (AY or YM)
+chip.chip_type = ay.ay_emul31_chip_type.YM_Chip
+
+# Play middle A (440Hz) on Channel A
+# Assuming 1.75MHz clock and 44.1kHz sample rate
+clock = 1750000
+sample_rate = 44100
+period = clock // (16 * 440)
+chip.set_register(0, period & 0xFF)
+chip.set_register(1, (period >> 8) & 0x0F)
+chip.set_register(7, 0x3E)
+chip.set_register(8, 15)
+
+# Start live playback
+chip.play(sample_rate, clock)
+```
+
+### `ay_emul31()`
+
+The constructor for the Ay_Emul31 emulator instance.
+
+### Attributes
+
+#### `.chip_type` (`ay.ay_emul31_chip_type`)
+
+The type of chip to emulate. See `ay_emul31_chip_type` in the Enums section.
+
+### Methods
+
+#### `.reset(zeroregs=True)`
+
+Resets the emulator state.
+
+-   **`zeroregs` (`bool`, optional)**: If `True`, all registers are cleared to zero. Defaults to `True`.
+
+#### `.set_register(reg, value)`
+
+Directly writes a value to an internal register.
+
+-   **`reg` (`int`)**: The register index (0-15).
+-   **`value` (`int`)**: The 8-bit value to write.
+
+#### `.generate(num_samples, clock, sample_rate)`
+
+Generates mono audio samples.
+
+-   **`num_samples` (`int`)**: The number of samples to generate.
+-   **`clock` (`int`)**: Master clock frequency in Hz.
+-   **`sample_rate` (`int`)**: Target output sample rate in Hz.
+-   **Returns**: `List[int]` - A list of `num_samples` integers.
+
+#### `.play(sample_rate=44100, clock=1750000)`
+
+Starts live audio playback.
+
+-   **`sample_rate` (`int`, optional)**: The sample rate for the audio stream. Defaults to 44100.
+-   **`clock` (`int`, optional)**: Master clock frequency. Defaults to 1750000.
+
+#### `.stop()`
+
+Stops the live audio playback.
