@@ -27,7 +27,8 @@ try:
 except ImportError:
     sd = None
 
-from typing import List, Tuple, Optional, Any, Union
+from typing import Any, Tuple
+
 
 def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
     """

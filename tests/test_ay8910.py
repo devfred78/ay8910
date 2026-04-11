@@ -261,4 +261,5 @@ class TestAY8912Caprice32(unittest.TestCase):
         samples = np.array(self.psg.generate(1000))
         self.assertTrue(np.any(samples), "Noise should produce samples in Caprice32")
 
-if __name__ ==
+if __name__ == '__main__':
+    unittest.main()

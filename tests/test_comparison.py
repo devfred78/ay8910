@@ -1,10 +1,9 @@
 import struct
 import wave
+from typing import List
 
 import ay8910_wrapper as ay
 
-
-from typing import List
 
 def generate_tone_mame(clock: int, sr: int, freq: float, duration: int) -> List[int]:
     psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)

@@ -2,7 +2,7 @@
 Handles real-time audio output using sounddevice.
 """
 import threading
-from typing import Any, Optional, Union
+from typing import Any, Optional
 
 import numpy as np
 import sounddevice as sd

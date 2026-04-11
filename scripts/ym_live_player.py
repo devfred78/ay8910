@@ -18,6 +18,7 @@ except ImportError:
 
 from typing import Tuple
 
+
 def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
     """
     Reads a null-terminated string from bytes.
