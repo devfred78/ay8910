@@ -140,5 +140,12 @@ jobs:
           pip install mkdocs-material
 
       - name: Deploy to GitHub Pages
+        shell: bash
         run: |
-          mkdocs gh-deploy --force
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && "${{ github.event.inputs.version }}" != "" ]]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/v}
+          fi
+          echo "Deploying documentation for version $VERSION"
+          mkdocs gh-deploy --force --message "Deploying documentation for version $VERSION"
