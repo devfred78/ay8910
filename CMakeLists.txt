@@ -10,11 +10,11 @@ project(ay8910_wrapper CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# --- C++ Library ---
 # Define our standalone C++ library
 add_library(ay8910_cpp_lib
     ay8910_cpp_lib/ay8910.cpp
     ay8910_cpp_lib/ay8912_cap32.cpp
+    ay8910_cpp_lib/ay_emul31.cpp
 )
 # Specify its include directory
 target_include_directories(ay8910_cpp_lib PUBLIC ay8910_cpp_lib)

@@ -18,7 +18,7 @@ class DirectOutput:
         channels (int): Number of audio channels.
         stream (Optional[sd.OutputStream]): The current audio output stream.
     """
-    def __init__(self, device: Any, sample_rate: int = 44100, channels: int = 1) -> None:
+    def __init__(self, device: Any, sample_rate: int = 44100, channels: int = 1, clock: int = 1750000) -> None:
         """
         Initializes the direct output manager.
 
@@ -26,10 +26,12 @@ class DirectOutput:
             device: The emulator instance generating audio.
             sample_rate: Target sample rate for audio output (default 44100).
             channels: 1 for mono, 2 for stereo (default 1).
+            clock: Master clock frequency (default 1750000).
         """
         self.device: Any = device
         self.sample_rate: int = sample_rate
         self.channels: int = channels
+        self.clock: int = clock
         self.stream: Optional[sd.OutputStream] = None
         self._lock: threading.Lock = threading.Lock()
 
@@ -49,8 +51,14 @@ class DirectOutput:
                 chunk = self.device.generate(frames)
                 outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, 2)
             else:
-                # MAME version
-                chunk = self.device.generate(frames, self.sample_rate)
+                # MAME / Ay_Emul31 version
+                try:
+                    # Try MAME signature: generate(frames, sample_rate)
+                    chunk = self.device.generate(frames, self.sample_rate)
+                except TypeError:
+                    # Try Ay_Emul31 signature: generate(frames, clock, sample_rate)
+                    chunk = self.device.generate(frames, self.clock, self.sample_rate)
+                
                 outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, 1)
 
     def start(self) -> None:

@@ -2,6 +2,7 @@
 #include <pybind11/stl.h>
 #include "ay8910.h"
 #include "ay8912_cap32.h"
+#include "ay_emul31.h"
 
 namespace py = pybind11;
 
@@ -221,4 +222,19 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
              "    num_samples (int): Number of samples to generate.\n\n"
              "Returns:\n"
              "    List[int]: A list of num_samples * 2 integers (alternating Left and Right).");
+
+    // Sergey Bulba (Ay_Emul31b) version
+    py::enum_<ay_emul31::ChType>(m, "ay_emul31_chip_type")
+        .value("AY_Chip", ay_emul31::ChType::AY_Chip)
+        .value("YM_Chip", ay_emul31::ChType::YM_Chip)
+        .export_values();
+
+    py::class_<ay_emul31::TSoundChip>(m, "ay_emul31", "Emulator based on Sergey Bulba's Ay_Emul29+ (version 3.1) implementation.")
+        .def(py::init<>())
+        .def_readwrite("chip_type", &ay_emul31::TSoundChip::chip_type)
+        .def("reset", &ay_emul31::TSoundChip::Reset, py::arg("zeroregs") = true)
+        .def("set_register", &ay_emul31::TSoundChip::SetAYRegister)
+        .def("generate", &ay_emul31::TSoundChip::generate_vector,
+             py::arg("num_samples"), py::arg("clock"), py::arg("sample_rate"),
+             "Generates mono audio samples.");
 }

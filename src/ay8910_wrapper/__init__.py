@@ -43,15 +43,16 @@ def _add_live_support(cls: Type[Any], channels: int) -> None:
         cls: The PSG class to enhance (e.g., ay8910 or ay8912_cap32).
         channels: Number of audio channels (1 for mono, 2 for stereo).
     """
-    def play(self: Any, sample_rate: int = 44100) -> None:
+    def play(self: Any, sample_rate: int = 44100, clock: int = 1750000) -> None:
         """
         Starts live audio playback for this PSG instance.
 
         Args:
             sample_rate: The sample rate for the audio output (default 44100).
+            clock: Master clock frequency (default 1750000).
         """
         if self not in _live_outputs:
-            _live_outputs[self] = DirectOutput(self, sample_rate, channels)
+            _live_outputs[self] = DirectOutput(self, sample_rate, channels, clock)
             _live_outputs[self].start()
             
     def stop(self: Any) -> None:
@@ -68,3 +69,5 @@ def _add_live_support(cls: Type[Any], channels: int) -> None:
 # Access names through the module dictionary since they are imported via *
 _add_live_support(globals()['ay8910'], 1)
 _add_live_support(globals()['ay8912_cap32'], 2)
+if 'ay_emul31' in globals():
+    _add_live_support(globals()['ay_emul31'], 1)

@@ -41,7 +41,7 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
 
     Args:
         filename: Path to the .ym file.
-        engine: The engine to use ('cap32' or 'mame').
+        engine: The engine to use ('cap32', 'mame' or 'ay_emul31').
     """
     print(f"Playing {filename}...")
     try:
@@ -116,6 +116,9 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
     if engine == "cap32":
         psg = ay.ay8912_cap32(clock, sample_rate)
         psg.set_stereo_mix(255, 13, 170, 170, 13, 255)
+    elif engine == "ay_emul31":
+        psg = ay.ay_emul31()
+        psg.chip_type = ay.ay_emul31_chip_type.YM_Chip
     else:
         # High fidelity configuration based on AY-3-8910 data manual (p.30-33)
         # Using AY type, single output (electrical mixing).
@@ -128,7 +131,7 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
     
     # START LIVE PLAYBACK
     print("\nStarting live playback... Press Ctrl+C to stop.")
-    psg.play(sample_rate)
+    psg.play(sample_rate, clock)
     
     start_time = time.time()
     try:
@@ -156,12 +159,19 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
 def main():
     parser = argparse.ArgumentParser(description="Live YM file player using the new .play() API")
     parser.add_argument("input_file", help="Path to the .ym file")
-    parser.add_argument("--mame", action="store_true", help="Use MAME engine (mono) instead of Caprice32 (stereo)")
+    group = parser.add_mutually_exclusive_group()
+    group.add_argument("--mame", action="store_true", help="Use MAME engine (mono) instead of Caprice32 (stereo)")
+    group.add_argument("--ay_emul31", action="store_true", help="Use Ay_Emul31 engine (mono)")
     args = parser.parse_args()
     
-    engine = "mame" if args.mame else "cap32"
+    if args.mame:
+        engine = "mame"
+    elif args.ay_emul31:
+        engine = "ay_emul31"
+    else:
+        engine = "cap32"
+
     play_ym_live(args.input_file, engine)
 
 if __name__ == "__main__":
     main()
-    
