@@ -117,8 +117,11 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
         psg = ay.ay8912_cap32(clock, sample_rate)
         psg.set_stereo_mix(255, 13, 170, 170, 13, 255)
     else:
-        psg = ay.ay8910(ay.psg_type.PSG_TYPE_YM, clock, 1, 0)
-        psg.set_flags(ay.AY8910_LEGACY_OUTPUT | ay.AY8910_SINGLE_OUTPUT)
+        # High fidelity configuration based on AY-3-8910 data manual (p.30-33)
+        # Using AY type, single output (electrical mixing).
+        # Note: RESISTOR_OUTPUT is temporarily disabled for better compatibility.
+        psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
+        psg.set_flags(ay.AY8910_SINGLE_OUTPUT | ay.AY8910_LEGACY_OUTPUT)
         psg.start()
 
     psg.reset()
@@ -154,4 +157,11 @@ def main():
     parser = argparse.ArgumentParser(description="Live YM file player using the new .play() API")
     parser.add_argument("input_file", help="Path to the .ym file")
     parser.add_argument("--mame", action="store_true", help="Use MAME engine (mono) instead of Caprice32 (stereo)")
+    args = parser.parse_args()
+    
+    engine = "mame" if args.mame else "cap32"
+    play_ym_live(args.input_file, engine)
+
+if __name__ == "__main__":
+    main()
     

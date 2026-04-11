@@ -104,6 +104,9 @@ PYBIND11_MODULE(ay8910_wrapper, m) {
         .def("reset", &ay8910_device::reset, "Resets the state of all registers and internal counters to default values.")
         .def("set_flags", &ay8910_device::set_flags, py::arg("flags"),
              "Sets behavioral flags for the emulation (e.g., AY8910_LEGACY_OUTPUT).")
+        .def("set_resistors_load", &ay8910_device::set_resistors_load, py::arg("res_load0"), py::arg("res_load1"), py::arg("res_load2"),
+             "Sets the load resistors (in Ohms) for the three audio channels (A, B, C).\n\n"
+             "Used when AY8910_RESISTOR_OUTPUT is enabled to calculate the output voltage based on MOSFET characteristics.")
         .def("address_w", &ay8910_device::address_w, py::arg("value"),
              "Writes a value to the address latch to select a register (0-15).")
         .def("data_w", &ay8910_device::data_w, py::arg("value"),

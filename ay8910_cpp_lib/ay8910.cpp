@@ -820,20 +820,24 @@ std::vector<short> ay8910_device::generate(int num_samples, int sample_rate)
         for (const auto& sample : buffer) {
             double s = sample;
             
+            // Debug: print sample values if they are 0
+            // if (s == 0.0) { /* silence ? */ }
+
             // Mono Mixing (SINGLE_OUTPUT)
             if (m_streams == 1)
             {
-                // In Mono mode, MAME sums the channels.
-                // The signal is typically in the [0, 3] range if not normalized,
-                // or [0, 1] if normalized by build_3D_table (LEGACY).
-                
-                if (m_flags & AY8910_LEGACY_OUTPUT) {
-                    // Centering: silence is at 0.0 in MAME's mixer table.
-                    // For a [0, 1] signal, the center is at 0.5.
+                if (m_flags & AY8910_RESISTOR_OUTPUT) {
+                    // Resistor output model is typically [0, 5] Volts.
+                    // Empty load (silence) should be around 5V.
+                    // Max signal (all channels on) pulls it down towards 0V.
+                    // Let's normalize it to [-1, 1] for PCM.
+                    // 5.0V -> -1.0 (Silence)
+                    // 0.0V -> 1.0 (Max pull down)
+                    s = (2.5 - s) / 2.5;
+                } else if (m_flags & AY8910_LEGACY_OUTPUT) {
                     s = (s - 0.5) * 2.0;
                 } else {
-                    // Not normalized: s is sum of volumes (roughly 0..3)
-                    s = (s / 3.0 - 0.5) * 2.0;
+                    s = (s / 1.5 - 1.0); // MAME sums to ~3.0 if not normalized.
                 }
             }
             else
