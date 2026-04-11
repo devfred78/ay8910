@@ -27,6 +27,7 @@ dependencies = [
 
 [project.urls]
 Homepage = "https://github.com/devfred78/ay8910"
+Documentation = "https://devfred78.github.io/ay8910"
 
 [project.scripts]
 play_ym = "scripts.ym_player:main"
