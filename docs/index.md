@@ -148,8 +148,8 @@ This project relies on the incredible work of the following open-source projects
 
 - **[MAME](https://github.com/mamedev/mame)**: The original AY-3-8910 and YM2149 emulation cores were derived from the MAME project. Their commitment to accuracy and historical preservation is a cornerstone of this library.
 - **[Caprice32](https://github.com/ColinPitrat/caprice32)**: The Amstrad CPC-specific PSG emulation logic and amplitude tables were integrated from the Caprice32 project, providing authentic sound for CPC-related audio tasks.
-- **[Sergey Bulba](http://bulba.at.gz.ru/)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 and Ay_Emul31 engines, which are essential for reproducing the characteristic sound of these chips.
-- **[Ay_Emul](http://bulba.at.gz.ru/)**: The `ay_emul31` engine is based on the work of **Sergey Bulba**. It's a port of his original Pascal source code (version 3.1) to C++.
+- **[Sergey Bulba](https://ay.strangled.net/elect_e.htm)**: Special thanks for the AY/YM amplitude tables used in the Caprice32 and Ay_Emul31 engines, which are essential for reproducing the characteristic sound of these chips.
+- **[Ay_Emul](https://ay.strangled.net/main_e.htm)**: The `ay_emul31` engine is based on the work of **Sergey Bulba**. It's a port of his original Pascal source code (version 3.1) to C++.
 - **[Gemini & Junie](https://github.com/google-gemini)**: This project was built with the assistance of AI, demonstrating the potential of human-AI collaboration in software development.
 
 ## License
