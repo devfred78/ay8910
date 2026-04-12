@@ -43,6 +43,9 @@ markdown_extensions:
   - md_in_html
   - toc:
       permalink: true
+
+plugins:
+  - search
   - mkdocstrings:
       handlers:
         python:
