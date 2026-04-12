@@ -50,5 +50,24 @@ class TestRegisterAccess(unittest.TestCase):
         psg.data_w(0x3F)
         self.assertEqual(psg.get_register(7), 0x3F)
 
+    def test_ay_emul31_register_access(self) -> None:
+        psg = ay8910_wrapper.ay_emul31()
+        
+        # Test individual register write
+        psg.set_register(0, 0x55)
+        # ay_emul31 does not have get_register in C++, so we can only test that it doesn't crash
+        # and maybe check if generate produces sound later.
+        
+        psg.set_register(1, 0x0A)
+
+    def test_mame_out_of_bounds_register(self) -> None:
+        psg = ay8910_wrapper.ay8910(ay8910_wrapper.PSG_TYPE_AY, 1000000, 1, 0)
+        # Testing out of bounds write/read - behavior should be safe (no crash)
+        # Different implementations might handle this differently
+        psg.set_register(100, 0xFF)
+        val = psg.get_register(100)
+        # Usually returns 0 or reflects the same register if wrapped (depends on C++ implementation)
+        self.assertIsInstance(val, int)
+
 if __name__ == '__main__':
     unittest.main()
