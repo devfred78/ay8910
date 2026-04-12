@@ -1,6 +1,7 @@
 
+
 import ay8910_wrapper as ay
-import numpy as np
+
 
 def test_mame_output():
     # Test avec les réglages qui posent problème
@@ -44,7 +45,7 @@ def test_mame_output():
     psg2.set_register(8, 15)
     
     samples2 = psg2.generate(100, 44100)
-    print(f"\nSans RESISTOR_OUTPUT :")
+    print("\nSans RESISTOR_OUTPUT :")
     print(f"Premiers 10 échantillons : {samples2[:10]}")
     print(f"Valeur min : {min(samples2)}, max : {max(samples2)}")
 
