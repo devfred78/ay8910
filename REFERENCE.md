@@ -16,8 +16,6 @@ The `ay8910_wrapper` package provides a high-level interface to the PSG emulator
         - psg_type
         - ay_emul31_chip_type
         - DirectOutput
-        - ay8912_cap32
-        - ay_emul31
       show_root_heading: false
       show_source: false
       inherited_members: true
@@ -33,6 +31,8 @@ The `direct_output` module handles real-time audio playback using `sounddevice`.
       show_source: true
 
 ## Native Extension Constants
+
+These constants are used to configure the emulation behavior during the instantiation of the `ay8910`, `ay8912`, and `ay8913` classes.
 
 The following constants are exported by the native C++ extension and are also available directly under `ay8910_wrapper`.
 

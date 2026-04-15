@@ -1,6 +1,6 @@
 # AY-3-8910 Standalone Library and Python Wrapper
 
-A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis.
+A Python wrapper for the AY-3-8910, AY-3-8912 and AY-3-8913 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis.
 
 > **A Note on this Project's Origin**
 >

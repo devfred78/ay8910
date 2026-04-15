@@ -4,7 +4,7 @@ This document provides a detailed reference for the functions, classes, and cons
 
 ## Main Interface
 
-The `ay8910_wrapper` package provides a high-level interface to the PSG emulators.
+The `ay8910_wrapper` package provides a high-level interface to the PSG emulators. The following attributes include constants used to configure the emulation during the instantiation of the `ay8910`, `ay8912`, and `ay8913` classes.
 
 ::: ay8910_wrapper
     options:
@@ -16,8 +16,6 @@ The `ay8910_wrapper` package provides a high-level interface to the PSG emulator
         - psg_type
         - ay_emul31_chip_type
         - DirectOutput
-        - ay8912_cap32
-        - ay_emul31
         - AY8910_LEGACY_OUTPUT
         - AY8910_SINGLE_OUTPUT
         - AY8910_DISCRETE_OUTPUT
