@@ -97,24 +97,76 @@ Data registers for the two 8-bit parallel ports.
 | **14** | Port A Data |
 | **15** | Port B Data |
 
-### Quick Start
+### Examples
+
+#### 1. Basic Tone (Live Playback)
+The simplest way to hear a sound.
+
+```python
+import ay8910_wrapper as ay
+import time
+
+# Create an AY-3-8912 (1 I/O port) as used in Amstrad CPC
+psg = ay.ay8912(backend=ay.Backend.CAPRICE32, clock=1000000)
+
+# Start live audio
+psg.play()
+
+# Set a 440Hz tone on Channel A
+# Period = 1000000 / (16 * 440) ≈ 142
+psg.set_register(0, 142 & 0xFF)
+psg.set_register(1, (142 >> 8) & 0x0F)
+psg.set_register(7, 0xFE)  # Enable Tone A
+psg.set_register(8, 15)    # Max volume
+
+time.sleep(1)
+psg.stop()
+```
+
+#### 2. Generating Audio Data (WAV Export)
+Generate samples manually and save them to a file.
+
+```python
+import ay8910_wrapper as ay
+import wave, struct
+
+psg = ay.ay8910(backend=ay.Backend.MAME, clock=2000000)
+
+# Configure a noise effect (e.g., snare drum)
+psg.set_register(6, 15)   # Noise period
+psg.set_register(7, 0xF7) # Enable Noise on Channel A
+psg.set_register(8, 16)   # Use envelope
+psg.set_register(11, 0)   # Envelope period fine
+psg.set_register(12, 10)  # Envelope period coarse
+psg.set_register(13, 0x00) # Decay shape (\\___)
+
+# Generate 0.5s of audio at 44100Hz
+samples = psg.generate(22050)
+
+with wave.open("noise_effect.wav", "wb") as f:
+    f.setnchannels(1)
+    f.setsampwidth(2)
+    f.setframerate(44100)
+    f.writeframes(struct.pack('<' + ('h' * len(samples)), *samples))
+```
+
+#### 3. Advanced Configuration (MAME & Resistors)
+Simulate specific hardware analog characteristics.
 
 ```python
 import ay8910_wrapper as ay
 
-# Create an AY-3-8910 emulator using the MAME backend
-chip = ay.ay8910(backend=ay.Backend.MAME, clock=2000000)
+# Use MAME backend for advanced hardware flags
+psg = ay.ay8910(backend=ay.Backend.MAME, clock=1750000)
 
-# Enable live playback
-chip.play()
+# Enable resistor-based output modeling (high accuracy)
+psg.set_flags(ay.AY8910_RESISTOR_OUTPUT | ay.AY8910_SINGLE_OUTPUT)
 
-# Set a tone on Channel A
-chip.set_register(0, 255) # Fine tune
-chip.set_register(7, 0x3E) # Enable Tone A, disable others
-chip.set_register(8, 15)  # Max volume
+# Set specific load resistors for ZX Spectrum (~1k Ohm)
+psg.set_resistors_load(1000.0, 1000.0, 1000.0)
 
-# Stop playback
-# chip.stop()
+psg.play()
+# ... program registers ...
 ```
 """
 
@@ -182,28 +234,50 @@ def _add_live_support(cls: Type[Any], channels: int) -> None:
 
 # Documentation for Constants
 AY8910_LEGACY_OUTPUT = 0x01
-"""Enable legacy MAME volume table (0-255)."""
+"""
+MAME Backend: Enable legacy volume table. 
+The output samples will be in the range [0, 255] per channel.
+"""
 
 AY8910_SINGLE_OUTPUT = 0x02
-"""Mix all channels into a single mono output."""
+"""
+MAME Backend: Mix all three channels (A, B, and C) into a single mono output stream.
+"""
 
 AY8910_DISCRETE_OUTPUT = 0x04
-"""Use discrete output emulation (experimental)."""
+"""
+MAME Backend: Use discrete voltage levels for output (experimental).
+The output values reflect raw internal DAC levels (0 to 524287).
+"""
 
 AY8910_RESISTOR_OUTPUT = 0x08
-"""Calculate output voltage based on internal resistors and MOSFET characteristics."""
+"""
+MAME Backend: Enable advanced resistor-based output modeling.
+Requires calling `set_resistors_load` to define external load resistances.
+This provides the most accurate simulation of the analog output stage.
+"""
 
 PSG_PIN26_IS_CLKSEL = 0x10
-"""Pin 26 on the chip selects the clock divider (YM2149)."""
+"""
+MAME Backend (YM2149 only): Pin 26 is used as a clock selector.
+When high, the master clock is divided by 2 internally.
+"""
 
 PSG_HAS_INTERNAL_DIVIDER = 0x20
-"""The chip has an internal clock divider enabled."""
+"""
+MAME Backend: Forces the use of an internal clock divider (usually /2).
+Equivalent to tying the CLKSEL pin on a YM2149.
+"""
 
 PSG_EXTENDED_ENVELOPE = 0x40
-"""Enable extended envelope shapes (YM2149)."""
+"""
+MAME Backend: Enable extended 10-bit envelope resolution (specific to some YM variants).
+"""
 
 PSG_HAS_EXPANDED_MODE = 0x80
-"""Enable expanded mode for extra registers (YM2149)."""
+"""
+MAME Backend: Enable expanded register mode (extra ports/features on specialized chips).
+"""
 
 class psg_type:
     """
@@ -234,13 +308,20 @@ class _AYBase:
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
             `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
-        clock (int): Master clock frequency in Hz (default: 1000000).
+        clock (int): Master clock frequency in Hz. Default: 1000000.
+            Typical values:
+            - **Amstrad CPC**: 1000000 (1.0 MHz)
+            - **ZX Spectrum**: 1750000 (1.75 MHz) or 1773400 (1.77 MHz)
+            - **Atari ST**: 2000000 (2.0 MHz)
+            - **Arcade Games**: Varies (often 1.5 MHz or 2.0 MHz)
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
         ioports (int): Number of I/O ports (default: 2).
 
     Example:
-        >>> psg = _AYBase(backend=Backend.MAME, clock=1000000)
-        >>> psg.set_register(0, 0xFE)
+        ```python
+        psg = _AYBase(backend=Backend.MAME, clock=1000000)
+        psg.set_register(0, 0xFE)
+        ```
     """
     def __init__(
         self, 
@@ -270,10 +351,18 @@ class _AYBase:
 
     def reset(self) -> None:
         """
-        Resets the emulator state.
+        Resets the emulator to its initial state.
+
+        This method mimics the hardware RESET pin. It clears all internal registers
+        (setting them to 0), stops any ongoing sound, and resets the envelope and
+        noise generators. Use it to ensure a clean state before starting a new
+        song or sound effect.
 
         Example:
-            >>> psg.reset()
+            ```python
+            # Resets the chip
+            psg.reset()
+            ```
         """
         if self._backend == Backend.AY_EMUL31:
             self._impl.reset(True)
@@ -284,11 +373,19 @@ class _AYBase:
         """
         Writes a value to the address latch.
 
+        This method mimics the behavior of the real hardware bus (pins BC1/BDIR). It
+        selects which register will be targeted by the next `data_w` call.
+
+        **Note**: For pure software control, prefer `set_register`, which is more
+        direct and avoids the two-step address/data latching process.
+
         Args:
             value (int): The address to select (0-15).
 
         Example:
-            >>> psg.address_w(7)  # Select Mixer register
+            ```python
+            psg.address_w(7)  # Select Mixer register
+            ```
         """
         if self._backend == Backend.AY_EMUL31:
             # Ay_Emul31 doesn't have address_w/data_w, it uses set_register directly.
@@ -302,12 +399,20 @@ class _AYBase:
         """
         Writes data to the selected register.
 
+        This method mimics the hardware data bus write operation. It writes a value
+        to the register previously selected with `address_w`.
+
+        **Note**: Using `set_register` is recommended instead, as it handles both
+        selection and writing in a single atomic software call.
+
         Args:
             value (int): The value to write to the currently selected register.
 
         Example:
-            >>> psg.address_w(7)
-            >>> psg.data_w(0xFE)  # Enable Tone A
+            ```python
+            psg.address_w(7)
+            psg.data_w(0xFE)  # Enable Tone A
+            ```
         """
         if self._backend == Backend.AY_EMUL31:
             if hasattr(self, '_latched_address'):
@@ -326,7 +431,9 @@ class _AYBase:
             int: The current value of the register.
 
         Example:
-            >>> val = psg.get_register(7)
+            ```python
+            val = psg.get_register(7)
+            ```
         """
         if self._backend == Backend.AY_EMUL31:
             # Ay_Emul31 native doesn't seem to expose get_register easily in wrapper? 
@@ -338,12 +445,18 @@ class _AYBase:
         """
         Writes a value to an internal register (0-15).
 
+        This is the recommended way to program the PSG in software. Unlike the
+        hardware-level `address_w` and `data_w` methods, this combined call
+        is more efficient and atomic in the context of the emulator wrapper.
+
         Args:
             reg (int): The register index to write.
             value (int): The value to write (0-255).
 
         Example:
-            >>> psg.set_register(7, 0xFE)
+            ```python
+            psg.set_register(7, 0xFE)
+            ```
         """
         self._impl.set_register(reg, value)
 
@@ -355,7 +468,9 @@ class _AYBase:
             List[int]: A list of 16 integers containing the register values.
 
         Example:
-            >>> regs = psg.get_registers()
+            ```python
+            regs = psg.get_registers()
+            ```
         """
         if self._backend == Backend.AY_EMUL31:
             return [0] * 16 # Not easily available
@@ -369,12 +484,15 @@ class _AYBase:
         the resulting samples as a list of 16-bit integers.
 
         **Output format**:
+
         - **Caprice32 (Stereo)**: Returns `num_samples * 2` values. The samples are interleaved
           (Left, Right, Left, Right, ...).
         - **MAME / AY_Emul31 (Mono)**: Returns `num_samples` values.
 
         **What to do with the generated list?**:
+
         The returned list contains raw 16-bit PCM (Pulse Code Modulation) samples. You can:
+
         1. **Save to a WAV file**: Using the standard `wave` module.
         2. **Process with NumPy**: For fast calculations, filtering, or visualization.
         3. **Play back**: Using libraries like `sounddevice`, `pyaudio`, or `pygame.mixer`.
@@ -387,14 +505,25 @@ class _AYBase:
                 depends on whether the backend is mono or stereo.
 
         Example:
-            >>> # Generate 1024 frames and save to a WAV file
-            >>> import wave, struct
-            >>> samples = psg.generate(1024)
-            >>> with wave.open("output.wav", "wb") as f:
-            ...     f.setnchannels(2 if psg._backend == Backend.CAPRICE32 else 1)
-            ...     f.setsampwidth(2) # 16-bit
-            ...     f.setframerate(44100)
-            ...     f.writeframes(struct.pack('<' + ('h' * len(samples)), *samples))
+            ```python
+            # 1. Set up a simple tone on Channel A (440Hz at 2MHz clock)
+            # Period = Clock / (16 * Frequency) = 2000000 / (16 * 440) = 284
+            psg.set_register(0, 284 & 0xFF)  # Fine tune
+            psg.set_register(1, (284 >> 8) & 0x0F)  # Coarse tune
+            psg.set_register(7, 0xFE)        # Enable Tone A (Mixer bit 0 = 0)
+            psg.set_register(8, 15)          # Maximum volume on Channel A
+            
+            # 2. Generate 1024 frames of this sound
+            samples = psg.generate(1024)
+            
+            # 3. Save to a WAV file
+            import wave, struct
+            with wave.open("melody.wav", "wb") as f:
+                f.setnchannels(2 if psg._backend == Backend.CAPRICE32 else 1)
+                f.setsampwidth(2) # 16-bit
+                f.setframerate(44100)
+                f.writeframes(struct.pack('<' + ('h' * len(samples)), *samples))
+            ```
         """
         if self._backend == Backend.CAPRICE32:
             return self._impl.generate(num_samples)
@@ -413,7 +542,9 @@ class _AYBase:
             clock (Optional[int]): Master clock frequency in Hz (default: same as class init).
 
         Example:
-            >>> psg.play()
+            ```python
+            psg.play()
+            ```
         """
         sr = sample_rate if sample_rate is not None else self._sample_rate
         cl = clock if clock is not None else self._clock
@@ -424,7 +555,9 @@ class _AYBase:
         Stops live playback.
 
         Example:
-            >>> psg.stop()
+            ```python
+            psg.stop()
+            ```
         """
         self._impl.stop()
 
@@ -437,6 +570,7 @@ class _AYBase:
         hardware features of the chip.
 
         Commonly used flags:
+
         - `AY8910_LEGACY_OUTPUT` (0x01): Legacy output (0 to 32767). Default behavior if no flags are set.
         - `AY8910_SINGLE_OUTPUT` (0x02): Mixes all three channels into a single mono output stream.
         - `AY8910_DISCRETE_OUTPUT` (0x04): Raw output level (0 to 524287), where 0 is 0V and 524287 is 5V.
@@ -447,7 +581,9 @@ class _AYBase:
             flags (int): Bitwise OR of flags to set.
 
         Example:
-            >>> psg.set_flags(AY8910_SINGLE_OUTPUT | AY8910_LEGACY_OUTPUT)
+            ```python
+            psg.set_flags(AY8910_SINGLE_OUTPUT | AY8910_LEGACY_OUTPUT)
+            ```
         """
         if self._backend == Backend.MAME:
             self._impl.set_flags(flags)
@@ -477,6 +613,7 @@ class _AYBase:
         ```
 
         Typical values for different systems:
+
         - **Amstrad CPC**: ~1000.0 Ω (standard pull-up)
         - **ZX Spectrum**: ~1000.0 Ω to 2000.0 Ω
         - **Arcade Boards**: Varies, often 1000.0 Ω or 680.0 Ω
@@ -487,9 +624,11 @@ class _AYBase:
             res_load2 (float): Resistor load for channel C (Ohms).
 
         Example:
-            >>> # Set standard 1kOhm pull-ups for all channels
-            >>> psg.set_flags(AY8910_RESISTOR_OUTPUT)
-            >>> psg.set_resistors_load(1000.0, 1000.0, 1000.0)
+            ```python
+            # Set standard 1kOhm pull-ups for all channels
+            psg.set_flags(AY8910_RESISTOR_OUTPUT)
+            psg.set_resistors_load(1000.0, 1000.0, 1000.0)
+            ```
         """
         if self._backend == Backend.MAME:
             self._impl.set_resistors_load(res_load0, res_load1, res_load2)
@@ -505,6 +644,7 @@ class _AYBase:
         The values for each argument range from **0** (silent) to **255** (maximum volume).
 
         Typical configurations for different systems:
+
         - **Amstrad CPC (Default)**: (255, 13, 170, 170, 13, 255) - Standard CPC stereo distribution.
         - **Full Mono**: (255, 255, 255, 255, 255, 255) - All channels mixed equally on both outputs.
         - **ABC Stereo**: (255, 0, 128, 128, 0, 255) - Channel A Left, B Center, C Right.
@@ -520,8 +660,10 @@ class _AYBase:
             cr (int): Volume for channel C on Right output (0-255).
 
         Example:
-            >>> # Classic ABC stereo distribution
-            >>> psg.set_stereo_mix(255, 0, 128, 128, 0, 255)
+            ```python
+            # Classic ABC stereo distribution
+            psg.set_stereo_mix(255, 0, 128, 128, 0, 255)
+            ```
         """
         if self._backend == Backend.CAPRICE32:
             self._impl.set_stereo_mix(al, ar, bl, br, cl, cr)
@@ -546,10 +688,13 @@ class ay8910(_AYBase):
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
             `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
+            (e.g., 1000000 for Amstrad CPC, 2000000 for Atari ST).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
 
     Example:
-        >>> psg = ay8910(backend=Backend.MAME)
+        ```python
+        psg = ay8910(backend=Backend.MAME)
+        ```
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=2)
@@ -562,10 +707,13 @@ class ay8912(_AYBase):
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
             `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
+            (e.g., 1000000 for Amstrad CPC, 1750000 for ZX Spectrum).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
 
     Example:
-        >>> psg = ay8912(backend=Backend.CAPRICE32)
+        ```python
+        psg = ay8912(backend=Backend.CAPRICE32)
+        ```
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=1)
@@ -578,12 +726,17 @@ class ay8913(_AYBase):
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
             `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
+            (e.g., 1500000 to 2000000 for Arcade boards).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
 
     Example:
-        >>> psg = ay8913(backend=Backend.AY_EMUL31)
+        ```python
+        psg = ay8913(backend=Backend.AY_EMUL31)
+        ```
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=0)
 
-# Keep old classes f
+# Keep old classes for compatibility
+ay8912_cap32 = ay8912
+ay_emul31 = ay8913

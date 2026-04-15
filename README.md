@@ -9,11 +9,13 @@ A Python wrapper for the AY-3-8910, AY-3-8912 and AY-3-8913 sound chip emulators
 > This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
 
 This project contains a standalone C++ library for the AY-3-8910 sound chip. It now features a unified API with three main classes:
+
 - **`ay8910`**: Emulates the 3-channel PSG with 2 I/O ports.
 - **`ay8912`**: Emulates the 3-channel PSG with 1 I/O port.
 - **`ay8913`**: Emulates the 3-channel PSG with 0 I/O port.
 
 At instantiation, you can choose between three emulation backends:
+
 - **`CAPRICE32` (default)**: The **recommended** engine. High accuracy, stereo mixing, and integrated live audio.
 - **`MAME`**: Based on the MAME implementation.
 - **`AY_EMUL31`**: A port of Sergey Bulba's Ay_Emul 3.1.
@@ -62,52 +64,76 @@ This will automatically install the necessary dependencies (`lhafile`, `numpy`, 
 
 For developers who want to compile from source or contribute, please refer to the [Contributing Guide](https://devfred78.github.io/ay8910/contribute/).
 
-## Basic Usage in Python
+## Usage Examples
+
+### 1. Basic Tone (Live Playback)
+The simplest way to hear a sound in real-time.
 
 ```python
 import ay8910_wrapper as ay
-import wave
-import struct
+import time
 
-# Helper to write WAV files
-def write_wav(filename, samples, sample_rate):
-    with wave.open(filename, 'wb') as f:
-        f.setnchannels(1)
-        f.setsampwidth(2)
-        f.setframerate(sample_rate)
-        packed_samples = struct.pack('<' + 'h' * len(samples), *samples)
-        f.writeframes(packed_samples)
+# Create an AY-3-8912 (1 I/O port) as used in Amstrad CPC
+psg = ay.ay8912(backend=ay.Backend.CAPRICE32, clock=1000000)
 
-# --- Main Program ---
+# Start live audio
+psg.play()
 
-# 1. Initialize the emulator using the MAME backend
-clock = 2000000  # 2 MHz
-sample_rate = 44100
-psg = ay.ay8910(backend=ay.Backend.MAME, clock=clock, sample_rate=sample_rate)
-psg.set_flags(ay.AY8910_LEGACY_OUTPUT)
-psg.reset()
+# Set a 440Hz tone on Channel A
+# Period = 1000000 / (16 * 440) ≈ 142
+psg.set_register(0, 142 & 0xFF)
+psg.set_register(1, (142 >> 8) & 0x0F)
+psg.set_register(7, 0xFE)  # Enable Tone A
+psg.set_register(8, 15)    # Max volume
 
-# 2. Program the chip registers
-# Enable Tone on Channel A, disable everything else
-psg.set_register(7, 0b00111110)
+time.sleep(1)
+psg.stop()
+```
 
-# Set Channel A frequency to Middle C (261.63 Hz)
-period = int(clock / (16 * 261.63))
-psg.set_register(0, period & 0xFF)         # Fine tune
-psg.set_register(1, (period >> 8) & 0x0F)  # Coarse tune
+### 2. Generating Audio Data (WAV Export)
+Generate samples manually and save them to a file.
 
-# Set Channel A volume to max
-psg.set_register(8, 15)
+```python
+import ay8910_wrapper as ay
+import wave, struct
 
-# 3. Generate audio
-# Generate 2 seconds of audio
-num_samples = sample_rate * 2
-samples = psg.generate(num_samples)
+psg = ay.ay8910(backend=ay.Backend.MAME, clock=2000000)
 
-# 4. Save the result
-write_wav("tone_output.wav", samples, sample_rate)
-print("Generated 'tone_output.wav'")
+# Configure a noise effect (e.g., snare drum)
+psg.set_register(6, 15)   # Noise period
+psg.set_register(7, 0xF7) # Enable Noise on Channel A
+psg.set_register(8, 16)   # Use envelope
+psg.set_register(11, 0)   # Envelope period fine
+psg.set_register(12, 10)  # Envelope period coarse
+psg.set_register(13, 0x00) # Decay shape (\___)
 
+# Generate 0.5s of audio at 44100Hz
+samples = psg.generate(22050)
+
+with wave.open("noise_effect.wav", "wb") as f:
+    f.setnchannels(1)
+    f.setsampwidth(2)
+    f.setframerate(44100)
+    f.writeframes(struct.pack('<' + ('h' * len(samples)), *samples))
+```
+
+### 3. Advanced Configuration (MAME & Resistors)
+Simulate specific hardware analog characteristics.
+
+```python
+import ay8910_wrapper as ay
+
+# Use MAME backend for advanced hardware flags
+psg = ay.ay8910(backend=ay.Backend.MAME, clock=1750000)
+
+# Enable resistor-based output modeling (high accuracy)
+psg.set_flags(ay.AY8910_RESISTOR_OUTPUT | ay.AY8910_SINGLE_OUTPUT)
+
+# Set specific load resistors for ZX Spectrum (~1k Ohm)
+psg.set_resistors_load(1000.0, 1000.0, 1000.0)
+
+psg.play()
+# ... program registers ...
 ```
 
 For a complete list of all available functions, classes, and constants, please see the [API Reference](https://devfred78.github.io/ay8910/reference/).
@@ -136,6 +162,7 @@ psg_8913 = ay.ay8913(backend=ay.Backend.AY_EMUL31)
 If you wish to contribute to the project or compile it from source, please refer to our **[Contributing Guide](https://devfred78.github.io/ay8910/contribute/)**.
 
 It contains all the necessary information about:
+
 - The development workflow (**GitHub Flow**)
 - Using **uv** for environment management
 - Compilation and test commands
