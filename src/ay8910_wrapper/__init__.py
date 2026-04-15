@@ -232,10 +232,15 @@ class _AYBase:
     Base class for AY-3-891x wrappers to provide a common interface.
 
     Args:
-        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
+            `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
         ioports (int): Number of I/O ports (default: 2).
+
+    Example:
+        >>> psg = _AYBase(backend=Backend.MAME, clock=1000000)
+        >>> psg.set_register(0, 0xFE)
     """
     def __init__(
         self, 
@@ -266,6 +271,9 @@ class _AYBase:
     def reset(self) -> None:
         """
         Resets the emulator state.
+
+        Example:
+            >>> psg.reset()
         """
         if self._backend == Backend.AY_EMUL31:
             self._impl.reset(True)
@@ -278,6 +286,9 @@ class _AYBase:
 
         Args:
             value (int): The address to select (0-15).
+
+        Example:
+            >>> psg.address_w(7)  # Select Mixer register
         """
         if self._backend == Backend.AY_EMUL31:
             # Ay_Emul31 doesn't have address_w/data_w, it uses set_register directly.
@@ -293,6 +304,10 @@ class _AYBase:
 
         Args:
             value (int): The value to write to the currently selected register.
+
+        Example:
+            >>> psg.address_w(7)
+            >>> psg.data_w(0xFE)  # Enable Tone A
         """
         if self._backend == Backend.AY_EMUL31:
             if hasattr(self, '_latched_address'):
@@ -309,6 +324,9 @@ class _AYBase:
 
         Returns:
             int: The current value of the register.
+
+        Example:
+            >>> val = psg.get_register(7)
         """
         if self._backend == Backend.AY_EMUL31:
             # Ay_Emul31 native doesn't seem to expose get_register easily in wrapper? 
@@ -323,6 +341,9 @@ class _AYBase:
         Args:
             reg (int): The register index to write.
             value (int): The value to write (0-255).
+
+        Example:
+            >>> psg.set_register(7, 0xFE)
         """
         self._impl.set_register(reg, value)
 
@@ -332,6 +353,9 @@ class _AYBase:
 
         Returns:
             List[int]: A list of 16 integers containing the register values.
+
+        Example:
+            >>> regs = psg.get_registers()
         """
         if self._backend == Backend.AY_EMUL31:
             return [0] * 16 # Not easily available
@@ -339,13 +363,38 @@ class _AYBase:
 
     def generate(self, num_samples: int) -> List[int]:
         """
-        Generates audio samples.
+        Generates a block of audio samples.
+
+        This method triggers the emulation for a specific number of audio frames and returns
+        the resulting samples as a list of 16-bit integers.
+
+        **Output format**:
+        - **Caprice32 (Stereo)**: Returns `num_samples * 2` values. The samples are interleaved
+          (Left, Right, Left, Right, ...).
+        - **MAME / AY_Emul31 (Mono)**: Returns `num_samples` values.
+
+        **What to do with the generated list?**:
+        The returned list contains raw 16-bit PCM (Pulse Code Modulation) samples. You can:
+        1. **Save to a WAV file**: Using the standard `wave` module.
+        2. **Process with NumPy**: For fast calculations, filtering, or visualization.
+        3. **Play back**: Using libraries like `sounddevice`, `pyaudio`, or `pygame.mixer`.
 
         Args:
-            num_samples (int): The number of samples to generate.
+            num_samples (int): The number of audio frames (samples) to generate.
 
         Returns:
-            List[int]: A list of generated samples.
+            List[int]: A list of generated 16-bit PCM samples. The length of the list
+                depends on whether the backend is mono or stereo.
+
+        Example:
+            >>> # Generate 1024 frames and save to a WAV file
+            >>> import wave, struct
+            >>> samples = psg.generate(1024)
+            >>> with wave.open("output.wav", "wb") as f:
+            ...     f.setnchannels(2 if psg._backend == Backend.CAPRICE32 else 1)
+            ...     f.setsampwidth(2) # 16-bit
+            ...     f.setframerate(44100)
+            ...     f.writeframes(struct.pack('<' + ('h' * len(samples)), *samples))
         """
         if self._backend == Backend.CAPRICE32:
             return self._impl.generate(num_samples)
@@ -362,6 +411,9 @@ class _AYBase:
         Args:
             sample_rate (Optional[int]): Audio sampling rate in Hz (default: same as class init).
             clock (Optional[int]): Master clock frequency in Hz (default: same as class init).
+
+        Example:
+            >>> psg.play()
         """
         sr = sample_rate if sample_rate is not None else self._sample_rate
         cl = clock if clock is not None else self._clock
@@ -370,6 +422,9 @@ class _AYBase:
     def stop(self) -> None:
         """
         Stops live playback.
+
+        Example:
+            >>> psg.stop()
         """
         self._impl.stop()
 
@@ -378,8 +433,21 @@ class _AYBase:
         """
         Set internal flags (MAME backend only).
 
+        These flags control how the MAME emulation engine handles audio output and specific
+        hardware features of the chip.
+
+        Commonly used flags:
+        - `AY8910_LEGACY_OUTPUT` (0x01): Legacy output (0 to 32767). Default behavior if no flags are set.
+        - `AY8910_SINGLE_OUTPUT` (0x02): Mixes all three channels into a single mono output stream.
+        - `AY8910_DISCRETE_OUTPUT` (0x04): Raw output level (0 to 524287), where 0 is 0V and 524287 is 5V.
+        - `AY8910_RESISTOR_OUTPUT` (0x08): Uses resistor values to calculate output. Requires `set_resistors_load`.
+        - `YM2149_PIN26_LOW` (0x10): Forces pin 26 low for YM2149 (activates internal divider).
+
         Args:
-            flags (int): Flags to set.
+            flags (int): Bitwise OR of flags to set.
+
+        Example:
+            >>> psg.set_flags(AY8910_SINGLE_OUTPUT | AY8910_LEGACY_OUTPUT)
         """
         if self._backend == Backend.MAME:
             self._impl.set_flags(flags)
@@ -388,10 +456,40 @@ class _AYBase:
         """
         Set the resistors load for each channel (MAME backend only).
 
+        This method is used when the `AY8910_RESISTOR_OUTPUT` flag is set in `set_flags`.
+        It defines the external load resistance (in Ohms) connected to each of the three
+        analog output pins (A, B, and C).
+
+        The PSG's internal output stage can be simplified as a voltage source followed
+        by an internal resistance ($R_{int}$) and the chip's MOSFETs, which are then
+        connected to an external pull-up or pull-down resistor ($R_{load}$).
+
+        ```text
+           Vcc (5V)
+             |
+           [R_load]  <-- res_load0/1/2
+             |
+             +----[ Analog Output ]
+             |
+          [ MOSFET ] (Internal)
+             |
+            GND
+        ```
+
+        Typical values for different systems:
+        - **Amstrad CPC**: ~1000.0 Ω (standard pull-up)
+        - **ZX Spectrum**: ~1000.0 Ω to 2000.0 Ω
+        - **Arcade Boards**: Varies, often 1000.0 Ω or 680.0 Ω
+
         Args:
-            res_load0 (float): Resistor load for channel 0.
-            res_load1 (float): Resistor load for channel 1.
-            res_load2 (float): Resistor load for channel 2.
+            res_load0 (float): Resistor load for channel A (Ohms).
+            res_load1 (float): Resistor load for channel B (Ohms).
+            res_load2 (float): Resistor load for channel C (Ohms).
+
+        Example:
+            >>> # Set standard 1kOhm pull-ups for all channels
+            >>> psg.set_flags(AY8910_RESISTOR_OUTPUT)
+            >>> psg.set_resistors_load(1000.0, 1000.0, 1000.0)
         """
         if self._backend == Backend.MAME:
             self._impl.set_resistors_load(res_load0, res_load1, res_load2)
@@ -401,13 +499,29 @@ class _AYBase:
         """
         Set stereo mixing volumes (Caprice32 backend only).
 
+        This method defines the volume weights for each of the three PSG channels (A, B, C)
+        on the Left and Right stereo outputs.
+
+        The values for each argument range from **0** (silent) to **255** (maximum volume).
+
+        Typical configurations for different systems:
+        - **Amstrad CPC (Default)**: (255, 13, 170, 170, 13, 255) - Standard CPC stereo distribution.
+        - **Full Mono**: (255, 255, 255, 255, 255, 255) - All channels mixed equally on both outputs.
+        - **ABC Stereo**: (255, 0, 128, 128, 0, 255) - Channel A Left, B Center, C Right.
+        - **ACB Stereo**: (255, 0, 0, 255, 128, 128) - Channel A Left, C Right, B Center.
+        - **Sharp X1**: Often uses a balanced mix for stereo effects.
+
         Args:
-            al (int): Volume for channel A on left.
-            ar (int): Volume for channel A on right.
-            bl (int): Volume for channel B on left.
-            br (int): Volume for channel B on right.
-            cl (int): Volume for channel C on left.
-            cr (int): Volume for channel C on right.
+            al (int): Volume for channel A on Left output (0-255).
+            ar (int): Volume for channel A on Right output (0-255).
+            bl (int): Volume for channel B on Left output (0-255).
+            br (int): Volume for channel B on Right output (0-255).
+            cl (int): Volume for channel C on Left output (0-255).
+            cr (int): Volume for channel C on Right output (0-255).
+
+        Example:
+            >>> # Classic ABC stereo distribution
+            >>> psg.set_stereo_mix(255, 0, 128, 128, 0, 255)
         """
         if self._backend == Backend.CAPRICE32:
             self._impl.set_stereo_mix(al, ar, bl, br, cl, cr)
@@ -429,9 +543,13 @@ class ay8910(_AYBase):
     AY-3-8910: 3 channels, 2 I/O ports (Port A and Port B).
 
     Args:
-        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
+            `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
+
+    Example:
+        >>> psg = ay8910(backend=Backend.MAME)
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=2)
@@ -441,9 +559,13 @@ class ay8912(_AYBase):
     AY-3-8912: 3 channels, 1 I/O port (Port A).
 
     Args:
-        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
+            `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
+
+    Example:
+        >>> psg = ay8912(backend=Backend.CAPRICE32)
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=1)
@@ -453,13 +575,15 @@ class ay8913(_AYBase):
     AY-3-8913: 3 channels, 0 I/O ports.
 
     Args:
-        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
+            `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
+
+    Example:
+        >>> psg = ay8913(backend=Backend.AY_EMUL31)
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=0)
 
-# Keep old classes for backward compatibility but they are now just aliases or wrappers
-ay8912_cap32 = ay8912 
-ay_emul31 = ay8910 # ay8910 with default AY_EMUL31 backend if one wants, but let's be more precise if needed.
+# Keep old classes f

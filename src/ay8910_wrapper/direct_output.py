@@ -23,6 +23,11 @@ class DirectOutput:
         sample_rate (int): Output sample rate in Hz.
         channels (int): Number of audio channels.
         stream (Optional[sd.OutputStream]): The current audio output stream.
+
+    Example:
+        >>> psg = ay8910()
+        >>> audio = DirectOutput(psg)
+        >>> audio.start()
     """
     def __init__(self, device: Any, sample_rate: int = 44100, channels: int = 1, clock: int = 1750000) -> None:
         self.device: Any = device
@@ -41,6 +46,10 @@ class DirectOutput:
             frames: Number of frames to generate.
             time: Timing information.
             status: Callback flags (underflow, etc).
+
+        Example:
+            # This is typically called by sounddevice
+            # audio._callback(buffer, 1024, None, None)
         """
         with self._lock:
             # Check if it's one of our new wrapper classes
@@ -73,6 +82,9 @@ class DirectOutput:
     def start(self) -> None:
         """
         Starts the audio output stream.
+
+        Example:
+            >>> audio.start()
         """
         if self.stream is None:
             self.stream = sd.OutputStream(
@@ -84,6 +96,12 @@ class DirectOutput:
             self.stream.start()
 
     def stop(self) -> None:
+        """
+        Stops the audio output stream.
+
+        Example:
+            >>> audio.stop()
+        """
         if self.stream is not None:
             self.stream.stop()
             self.stream.close()
