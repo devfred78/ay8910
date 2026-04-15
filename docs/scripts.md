@@ -76,6 +76,7 @@ uv run scripts/run_local_tests.py --all --fix
 ## Utility Scripts
 
 The `scripts/` folder also contains technical utilities used during development:
+
 - `analyze_wav.py`: Analyzes audio samples in a WAV file.
 - `compare_wav.py`: Compares two WAV files to detect differences.
 - `check_samples.py`: Verifies the validity of generated audio samples.
