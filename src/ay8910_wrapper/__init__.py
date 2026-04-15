@@ -8,7 +8,8 @@ audio playback.
 ### PSG Registers Reference (0-15)
 
 #### Tone Period (Registers 0-5)
-These registers control the pitch of the three square wave channels. Each channel uses two registers (Fine and Coarse) to form a 12-bit period value.
+These registers control the pitch of the three square wave channels.
+Each channel uses two registers (Fine and Coarse) to form a 12-bit period value.
 Formula: $f = \text{Clock} / (16 \times \text{Period})$
 
 | Register | Function | Bits |
@@ -28,7 +29,8 @@ Controls the frequency of the pseudo-random noise generator used for percussion 
 | **6** | Noise Period | 5-bit |
 
 #### Mixer Control (Register 7)
-Enables or disables Tone and Noise for each of the three channels. It also controls the I/O port directions. Bits are active-low (0 = Enabled, 1 = Disabled).
+Enables or disables Tone and Noise for each of the three channels.
+It also controls the I/O port directions. Bits are active-low (0 = Enabled, 1 = Disabled).
 
 | Bit | Function |
 | :--- | :--- |
@@ -42,7 +44,8 @@ Enables or disables Tone and Noise for each of the three channels. It also contr
 | **7** | Port B Direction (0: Input, 1: Output) |
 
 #### Amplitude/Volume (Registers 8-10)
-Controls the volume of each channel. A value of 0-15 sets a fixed volume. If bit 4 is set (value 16), the channel follows the hardware envelope.
+Controls the volume of each channel. A value of 0-15 sets a fixed volume.
+If bit 4 is set (value 16), the channel follows the hardware envelope.
 
 | Register | Function | Range |
 | :--- | :--- | :--- |
@@ -83,7 +86,8 @@ Controls the shape of the volume variation over time. The 4 bits (B3-B0) of this
 | **1110** | E | `/\\/\\` | Repeating Attack-Decay (Inverse Triangle) |
 | **1111** | F | `/___` | Single Attack, then Silence |
 
-*Note: In the graphical representations, `\\` indicates Decay, `/` indicates Attack, `_` indicates Hold Low (Silence), and `¯` indicates Hold High (Full Volume).*
+*Note: In the graphical representations, `\\` indicates Decay, `/` indicates Attack,
+`_` indicates Hold Low (Silence), and `¯` indicates Hold High (Full Volume).*
 
 #### I/O Ports (Registers 14-15)
 Data registers for the two 8-bit parallel ports.
@@ -114,16 +118,24 @@ chip.set_register(8, 15)  # Max volume
 ```
 """
 
-from typing import Any, Dict, List, Type, Union
+from typing import Any, Dict, List, Type
 
 # Import the native module to make it accessible.
 from .ay8910_wrapper import *  # noqa: F403
 from .ay8910_wrapper import (
     ay8910 as _ay8910_native,
+)
+from .ay8910_wrapper import (
     ay8912_cap32 as _ay8912_cap32_native,
+)
+from .ay8910_wrapper import (
     ay_emul31 as _ay_emul31_native,
-    psg_type as _psg_type_native,
+)
+from .ay8910_wrapper import (
     ay_emul31_chip_type as _ay_emul31_chip_type_native,
+)
+from .ay8910_wrapper import (
+    psg_type as _psg_type_native,
 )
 from .direct_output import DirectOutput
 
@@ -408,7 +420,8 @@ class ay_emul31(_ay_emul31_native):
     """
     Emulator class based on Sergey Bulba's Ay_Emul29+ (version 3.1) implementation.
 
-    This version is a port of the original Pascal source code to C++, providing a mono emulation with support for both AY and YM volume tables.
+    This version is a port of the original Pascal source code to C++,
+    providing a mono emulation with support for both AY and YM volume tables.
 
     The emulated chip features 16 internal registers (0-15) to control 3 square wave channels and a noise generator.
     See the module-level documentation for a full register reference.
