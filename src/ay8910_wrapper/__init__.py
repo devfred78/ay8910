@@ -5,6 +5,77 @@ This package provides a Python wrapper for the standalone AY-3-8910 emulators
 It includes classes to emulate the PSG chip and high-level methods for live
 audio playback.
 
+### PSG Registers Reference (0-15)
+
+#### Tone Period (Registers 0-5)
+These registers control the pitch of the three square wave channels. Each channel uses two registers (Fine and Coarse) to form a 12-bit period value.
+Formula: $f = \text{Clock} / (16 \times \text{Period})$
+
+| Register | Function | Bits |
+| :--- | :--- | :--- |
+| **0** | Channel A Fine Tune | 8-bit |
+| **1** | Channel A Coarse Tune | 4-bit |
+| **2** | Channel B Fine Tune | 8-bit |
+| **3** | Channel B Coarse Tune | 4-bit |
+| **4** | Channel C Fine Tune | 8-bit |
+| **5** | Channel C Coarse Tune | 4-bit |
+
+#### Noise Period (Register 6)
+Controls the frequency of the pseudo-random noise generator used for percussion or sound effects.
+
+| Register | Function | Bits |
+| :--- | :--- | :--- |
+| **6** | Noise Period | 5-bit |
+
+#### Mixer Control (Register 7)
+Enables or disables Tone and Noise for each of the three channels. It also controls the I/O port directions. Bits are active-low (0 = Enabled, 1 = Disabled).
+
+| Bit | Function |
+| :--- | :--- |
+| **0** | Tone A (0: On, 1: Off) |
+| **1** | Tone B (0: On, 1: Off) |
+| **2** | Tone C (0: On, 1: Off) |
+| **3** | Noise A (0: On, 1: Off) |
+| **4** | Noise B (0: On, 1: Off) |
+| **5** | Noise C (0: On, 1: Off) |
+| **6** | Port A Direction (0: Input, 1: Output) |
+| **7** | Port B Direction (0: Input, 1: Output) |
+
+#### Amplitude/Volume (Registers 8-10)
+Controls the volume of each channel. A value of 0-15 sets a fixed volume. If bit 4 is set (value 16), the channel follows the hardware envelope.
+
+| Register | Function | Range |
+| :--- | :--- | :--- |
+| **8** | Channel A Amplitude | 0-15 (Fixed) or 16 (Envelope) |
+| **9** | Channel B Amplitude | 0-15 (Fixed) or 16 (Envelope) |
+| **10** | Channel C Amplitude | 0-15 (Fixed) or 16 (Envelope) |
+
+#### Envelope Period (Registers 11-12)
+Sets the duration of one envelope cycle (16-bit value). Formula: $T = (256 \times \text{Period}) / \text{Clock}$
+
+| Register | Function | Bits |
+| :--- | :--- | :--- |
+| **11** | Envelope Fine Tune | 8-bit |
+| **12** | Envelope Coarse Tune | 8-bit |
+
+#### Envelope Shape (Register 13)
+Controls the shape of the volume variation (Attack, Decay, Sustain, Release).
+
+| Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |
+| :--- | :--- | :--- | :--- | :--- |
+| **0** | **0** | **x** | **x** | `\\___` (Single Decay, then Silence) |
+| **1** | **0** | **0** | **0** | `\\\\\\\\\\\\\\\\` (Repeating Decay / Sawtooth) |
+| **1** | **0** | **1** | **1** | `/\\|/\\|/\\|` (Repeating Attack / Inverse Sawtooth) |
+| **1** | **1** | **0** | **0** | `/\\/\\/\\` (Triangle) |
+
+#### I/O Ports (Registers 14-15)
+Data registers for the two 8-bit parallel ports.
+
+| Register | Function |
+| :--- | :--- |
+| **14** | Port A Data |
+| **15** | Port B Data |
+
 ### Quick Start
 
 ```python
@@ -125,77 +196,7 @@ class ay8910(_ay8910_native):
     Main class for instantiating and controlling an AY-3-8910 emulator based on the MAME implementation.
 
     The emulated chip features 16 internal registers (0-15) to control 3 square wave channels and a noise generator.
-
-    ### PSG Registers Reference (0-15)
-
-    #### Tone Period (Registers 0-5)
-    These registers control the pitch of the three square wave channels. Each channel uses two registers (Fine and Coarse) to form a 12-bit period value.
-    Formula: $f = \\text{Clock} / (16 \\times \\text{Period})$
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **0** | Channel A Fine Tune | 8-bit |
-    | **1** | Channel A Coarse Tune | 4-bit |
-    | **2** | Channel B Fine Tune | 8-bit |
-    | **3** | Channel B Coarse Tune | 4-bit |
-    | **4** | Channel C Fine Tune | 8-bit |
-    | **5** | Channel C Coarse Tune | 4-bit |
-
-    #### Noise Period (Register 6)
-    Controls the frequency of the pseudo-random noise generator used for percussion or sound effects.
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **6** | Noise Period | 5-bit |
-
-    #### Mixer Control (Register 7)
-    Enables or disables Tone and Noise for each of the three channels. It also controls the I/O port directions. Bits are active-low (0 = Enabled, 1 = Disabled).
-
-    | Bit | Function |
-    | :--- | :--- |
-    | **0** | Tone A (0: On, 1: Off) |
-    | **1** | Tone B (0: On, 1: Off) |
-    | **2** | Tone C (0: On, 1: Off) |
-    | **3** | Noise A (0: On, 1: Off) |
-    | **4** | Noise B (0: On, 1: Off) |
-    | **5** | Noise C (0: On, 1: Off) |
-    | **6** | Port A Direction (0: Input, 1: Output) |
-    | **7** | Port B Direction (0: Input, 1: Output) |
-
-    #### Amplitude/Volume (Registers 8-10)
-    Controls the volume of each channel. A value of 0-15 sets a fixed volume. If bit 4 is set (value 16), the channel follows the hardware envelope.
-
-    | Register | Function | Range |
-    | :--- | :--- | :--- |
-    | **8** | Channel A Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-    | **9** | Channel B Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-    | **10** | Channel C Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-
-    #### Envelope Period (Registers 11-12)
-    Sets the duration of one envelope cycle (16-bit value). Formula: $T = (256 \\times \\text{Period}) / \\text{Clock}$
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **11** | Envelope Fine Tune | 8-bit |
-    | **12** | Envelope Coarse Tune | 8-bit |
-
-    #### Envelope Shape (Register 13)
-    Controls the shape of the volume variation (Attack, Decay, Sustain, Release).
-
-    | Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |
-    | :--- | :--- | :--- | :--- | :--- |
-    | **0** | **0** | **x** | **x** | `\\___` (Single Decay, then Silence) |
-    | **1** | **0** | **0** | **0** | `\\\\\\\\\\\\\\\\` (Repeating Decay / Sawtooth) |
-    | **1** | **0** | **1** | **1** | `/\\|/\\|/\\|` (Repeating Attack / Inverse Sawtooth) |
-    | **1** | **1** | **0** | **0** | `/\\/\\/\\` (Triangle) |
-
-    #### I/O Ports (Registers 14-15)
-    Data registers for the two 8-bit parallel ports.
-
-    | Register | Function |
-    | :--- | :--- |
-    | **14** | Port A Data |
-    | **15** | Port B Data |
+    See the module-level documentation for a full register reference.
 
     ### Usage Examples
 
@@ -296,77 +297,7 @@ class ay8912_cap32(_ay8912_cap32_native):
     Specialized emulator class based on the Caprice32 (Amstrad CPC) implementation. Natively stereo.
 
     The emulated chip features 16 internal registers (0-15) to control 3 square wave channels and a noise generator.
-
-    ### PSG Registers Reference (0-15)
-
-    #### Tone Period (Registers 0-5)
-    These registers control the pitch of the three square wave channels. Each channel uses two registers (Fine and Coarse) to form a 12-bit period value.
-    Formula: $f = \\text{Clock} / (16 \\times \\text{Period})$
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **0** | Channel A Fine Tune | 8-bit |
-    | **1** | Channel A Coarse Tune | 4-bit |
-    | **2** | Channel B Fine Tune | 8-bit |
-    | **3** | Channel B Coarse Tune | 4-bit |
-    | **4** | Channel C Fine Tune | 8-bit |
-    | **5** | Channel C Coarse Tune | 4-bit |
-
-    #### Noise Period (Register 6)
-    Controls the frequency of the pseudo-random noise generator used for percussion or sound effects.
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **6** | Noise Period | 5-bit |
-
-    #### Mixer Control (Register 7)
-    Enables or disables Tone and Noise for each of the three channels. It also controls the I/O port directions. Bits are active-low (0 = Enabled, 1 = Disabled).
-
-    | Bit | Function |
-    | :--- | :--- |
-    | **0** | Tone A (0: On, 1: Off) |
-    | **1** | Tone B (0: On, 1: Off) |
-    | **2** | Tone C (0: On, 1: Off) |
-    | **3** | Noise A (0: On, 1: Off) |
-    | **4** | Noise B (0: On, 1: Off) |
-    | **5** | Noise C (0: On, 1: Off) |
-    | **6** | Port A Direction (0: Input, 1: Output) |
-    | **7** | Port B Direction (0: Input, 1: Output) |
-
-    #### Amplitude/Volume (Registers 8-10)
-    Controls the volume of each channel. A value of 0-15 sets a fixed volume. If bit 4 is set (value 16), the channel follows the hardware envelope.
-
-    | Register | Function | Range |
-    | :--- | :--- | :--- |
-    | **8** | Channel A Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-    | **9** | Channel B Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-    | **10** | Channel C Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-
-    #### Envelope Period (Registers 11-12)
-    Sets the duration of one envelope cycle (16-bit value). Formula: $T = (256 \\times \\text{Period}) / \\text{Clock}$
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **11** | Envelope Fine Tune | 8-bit |
-    | **12** | Envelope Coarse Tune | 8-bit |
-
-    #### Envelope Shape (Register 13)
-    Controls the shape of the volume variation (Attack, Decay, Sustain, Release).
-
-    | Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |
-    | :--- | :--- | :--- | :--- | :--- |
-    | **0** | **0** | **x** | **x** | `\\___` (Single Decay, then Silence) |
-    | **1** | **0** | **0** | **0** | `\\\\\\\\\\\\\\\\` (Repeating Decay / Sawtooth) |
-    | **1** | **0** | **1** | **1** | `/\\|/\\|/\\|` (Repeating Attack / Inverse Sawtooth) |
-    | **1** | **1** | **0** | **0** | `/\\/\\/\\` (Triangle) |
-
-    #### I/O Ports (Registers 14-15)
-    Data registers for the two 8-bit parallel ports.
-
-    | Register | Function |
-    | :--- | :--- |
-    | **14** | Port A Data |
-    | **15** | Port B Data |
+    See the module-level documentation for a full register reference.
 
     ### Usage Examples
 
@@ -421,9 +352,12 @@ class ay8912_cap32(_ay8912_cap32_native):
         Sets the stereo weights (panning) for the three PSG channels (A, B, C).
 
         Args:
-            al, ar (int): Left and Right weights for Channel A (0-255).
-            bl, br (int): Left and Right weights for Channel B (0-255).
-            cl, cr (int): Left and Right weights for Channel C (0-255).
+            al (int): Left weight for Channel A (0-255).
+            ar (int): Right weight for Channel A (0-255).
+            bl (int): Left weight for Channel B (0-255).
+            br (int): Right weight for Channel B (0-255).
+            cl (int): Left weight for Channel C (0-255).
+            cr (int): Right weight for Channel C (0-255).
         """
         super().set_stereo_mix(al, ar, bl, br, cl, cr)
 
@@ -459,65 +393,8 @@ class ay_emul31(_ay_emul31_native):
 
     This version is a port of the original Pascal source code to C++, providing a mono emulation with support for both AY and YM volume tables.
 
-    ### PSG Registers Reference (0-15)
-
-    #### Tone Period (Registers 0-5)
-    These registers control the pitch of the three square wave channels.
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **0** | Channel A Fine Tune | 8-bit |
-    | **1** | Channel A Coarse Tune | 4-bit |
-    | **2** | Channel B Fine Tune | 8-bit |
-    | **3** | Channel B Coarse Tune | 4-bit |
-    | **4** | Channel C Fine Tune | 8-bit |
-    | **5** | Channel C Coarse Tune | 4-bit |
-
-    #### Noise Period (Register 6)
-    Controls the frequency of the pseudo-random noise generator.
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **6** | Noise Period | 5-bit |
-
-    #### Mixer Control (Register 7)
-    Enables or disables Tone and Noise for each of the three channels. Bits are active-low.
-
-    | Bit | Function |
-    | :--- | :--- |
-    | **0** | Tone A (0: On, 1: Off) |
-    | **1** | Tone B (0: On, 1: Off) |
-    | **2** | Tone C (0: On, 1: Off) |
-    | **3** | Noise A (0: On, 1: Off) |
-    | **4** | Noise B (0: On, 1: Off) |
-    | **5** | Noise C (0: On, 1: Off) |
-
-    #### Amplitude/Volume (Registers 8-10)
-    Controls the volume of each channel. A value of 0-15 sets a fixed volume. If bit 4 is set (value 16), the channel follows the hardware envelope.
-
-    | Register | Function | Range |
-    | :--- | :--- | :--- |
-    | **8** | Channel A Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-    | **9** | Channel B Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-    | **10** | Channel C Amplitude | 0-15 (Fixed) or 16 (Envelope) |
-
-    #### Envelope Period (Registers 11-12)
-    Sets the duration of one envelope cycle (16-bit value).
-
-    | Register | Function | Bits |
-    | :--- | :--- | :--- |
-    | **11** | Envelope Fine Tune | 8-bit |
-    | **12** | Envelope Coarse Tune | 8-bit |
-
-    #### Envelope Shape (Register 13)
-    Controls the shape of the volume variation.
-
-    | Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |
-    | :--- | :--- | :--- | :--- | :--- |
-    | **0** | **0** | **x** | **x** | `\\___` (Single Decay, then Silence) |
-    | **1** | **0** | **0** | **0** | `\\\\\\\\\\\\\\\\` (Repeating Decay / Sawtooth) |
-    | **1** | **0** | **1** | **1** | `/\\|/\\|/\\|` (Repeating Attack / Inverse Sawtooth) |
-    | **1** | **1** | **0** | **0** | `/\\/\\/\\` (Triangle) |
+    The emulated chip features 16 internal registers (0-15) to control 3 square wave channels and a noise generator.
+    See the module-level documentation for a full register reference.
 
     ### Usage Examples
 
