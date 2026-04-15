@@ -59,14 +59,31 @@ Sets the duration of one envelope cycle (16-bit value). Formula: $T = (256 \time
 | **12** | Envelope Coarse Tune | 8-bit |
 
 #### Envelope Shape (Register 13)
-Controls the shape of the volume variation (Attack, Decay, Sustain, Release).
+Controls the shape of the volume variation over time. The 4 bits (B3-B0) of this register define the envelope cycle.
 
-| Bit 3 | Bit 2 | Bit 1 | Bit 0 | Shape Description |
-| :--- | :--- | :--- | :--- | :--- |
-| **0** | **0** | **x** | **x** | `\\___` (Single Decay, then Silence) |
-| **1** | **0** | **0** | **0** | `\\\\\\\\\\\\\\\\` (Repeating Decay / Sawtooth) |
-| **1** | **0** | **1** | **1** | `/\\|/\\|/\\|` (Repeating Attack / Inverse Sawtooth) |
-| **1** | **1** | **0** | **0** | `/\\/\\/\\` (Triangle) |
+| Bit | Name | Function |
+| :--- | :--- | :--- |
+| **3** | **CONT** | **Continue**: If 0, the cycle ends after one attack/decay (Hold is ignored). |
+| **2** | **ATT** | **Attack**: If 1, volume increases (0 to 15). If 0, volume decreases (15 to 0). |
+| **1** | **ALT** | **Alternate**: If 1, the direction of the next cycle is reversed (Triangle shape). |
+| **0** | **HOLD** | **Hold**: If 1, the volume stays at the last level (0 or 15) after one cycle. |
+
+##### Shape Combinations
+
+| B3-B0 | Hex | Graphical Representation | Description |
+| :--- | :--- | :--- | :--- |
+| **00xx** | 0-3 | `\\___` | Single Decay, then Silence |
+| **01xx** | 4-7 | `/___` | Single Attack, then Silence |
+| **1000** | 8 | `\\\\\\\\` | Repeating Decay (Sawtooth) |
+| **1001** | 9 | `\\___` | Single Decay, then Silence |
+| **1010** | A | `\\/\\/` | Repeating Decay-Attack (Triangle) |
+| **1011** | B | `\\¯¯¯` | Single Decay, then Hold High |
+| **1100** | C | `////` | Repeating Attack (Inverse Sawtooth) |
+| **1101** | D | `/¯¯¯` | Single Attack, then Hold High |
+| **1110** | E | `/\\/\\` | Repeating Attack-Decay (Inverse Triangle) |
+| **1111** | F | `/___` | Single Attack, then Silence |
+
+*Note: In the graphical representations, `\\` indicates Decay, `/` indicates Attack, `_` indicates Hold Low (Silence), and `¯` indicates Hold High (Full Volume).*
 
 #### I/O Ports (Registers 14-15)
 Data registers for the two 8-bit parallel ports.
