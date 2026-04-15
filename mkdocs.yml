@@ -62,5 +62,6 @@ extra_javascript:
 nav:
   - Home: index.md
   - API Reference: reference.md
+  - Scripts and Tools: scripts.md
   - Contributing: contribute.md
   - License: license.md

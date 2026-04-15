@@ -116,6 +116,10 @@ print("Generated 'tone_output.wav'")
 
 For a complete list of all available functions, classes, and constants, please see the [API Reference](https://devfred78.github.io/ay8910/reference/).
 
+## Scripts and Tools
+
+The project includes several scripts for playing chiptunes and running tests. For a detailed description of how to use them, please see the **[Scripts and Tools](https://devfred78.github.io/ay8910/scripts/)** page.
+
 ## Recommended: Caprice32 (Amstrad CPC) Emulation
 
 The **Caprice32** engine is the preferred choice for most users. It provides more authentic sound synthesis and advanced features like stereo panning.
