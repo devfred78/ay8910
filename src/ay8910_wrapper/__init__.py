@@ -1,6 +1,6 @@
 """
 This package provides a Python wrapper for the standalone AY-3-8910 emulators
-(MAME and Caprice32 versions).
+(MAME, Caprice32, and AY_Emul31 versions).
 
 It includes classes to emulate the PSG chip and high-level methods for live
 audio playback.
@@ -102,15 +102,15 @@ Data registers for the two 8-bit parallel ports.
 ```python
 import ay8910_wrapper as ay
 
-# Create a MAME-based AY-3-8910 emulator
-chip = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock=2000000, streams=1, ioports=0)
-chip.start()
+# Create an AY-3-8910 emulator using the MAME backend
+chip = ay.ay8910(backend=ay.Backend.MAME, clock=2000000)
 
 # Enable live playback
 chip.play()
 
-# Set a tone on Channel A (high-level)
+# Set a tone on Channel A
 chip.set_register(0, 255) # Fine tune
+chip.set_register(7, 0x3E) # Enable Tone A, disable others
 chip.set_register(8, 15)  # Max volume
 
 # Stop playback
@@ -228,7 +228,15 @@ class ay_emul31_chip_type:
     YM_Chip = _ay_emul31_chip_type_native.YM_Chip
 
 class _AYBase:
-    """Base class for AY-3-891x wrappers to provide a common interface."""
+    """
+    Base class for AY-3-891x wrappers to provide a common interface.
+
+    Args:
+        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        clock (int): Master clock frequency in Hz (default: 1000000).
+        sample_rate (int): Audio sampling rate in Hz (default: 44100).
+        ioports (int): Number of I/O ports (default: 2).
+    """
     def __init__(
         self, 
         backend: Backend = Backend.CAPRICE32, 
@@ -256,14 +264,21 @@ class _AYBase:
             raise ValueError(f"Unknown backend: {backend}")
 
     def reset(self) -> None:
-        """Resets the emulator state."""
+        """
+        Resets the emulator state.
+        """
         if self._backend == Backend.AY_EMUL31:
             self._impl.reset(True)
         else:
             self._impl.reset()
 
     def address_w(self, value: int) -> None:
-        """Writes a value to the address latch."""
+        """
+        Writes a value to the address latch.
+
+        Args:
+            value (int): The address to select (0-15).
+        """
         if self._backend == Backend.AY_EMUL31:
             # Ay_Emul31 doesn't have address_w/data_w, it uses set_register directly.
             # We'll store the address for a subsequent data_w if needed, 
@@ -273,7 +288,12 @@ class _AYBase:
             self._impl.address_w(value)
 
     def data_w(self, value: int) -> None:
-        """Writes data to the selected register."""
+        """
+        Writes data to the selected register.
+
+        Args:
+            value (int): The value to write to the currently selected register.
+        """
         if self._backend == Backend.AY_EMUL31:
             if hasattr(self, '_latched_address'):
                 self._impl.set_register(self._latched_address, value)
@@ -281,7 +301,15 @@ class _AYBase:
             self._impl.data_w(value)
 
     def get_register(self, reg: int) -> int:
-        """Reads the value of an internal register (0-15)."""
+        """
+        Reads the value of an internal register (0-15).
+
+        Args:
+            reg (int): The register index to read.
+
+        Returns:
+            int: The current value of the register.
+        """
         if self._backend == Backend.AY_EMUL31:
             # Ay_Emul31 native doesn't seem to expose get_register easily in wrapper? 
             # Wait, let me check wrapper.cpp
@@ -289,17 +317,36 @@ class _AYBase:
         return self._impl.get_register(reg)
 
     def set_register(self, reg: int, value: int) -> None:
-        """Writes a value to an internal register (0-15)."""
+        """
+        Writes a value to an internal register (0-15).
+
+        Args:
+            reg (int): The register index to write.
+            value (int): The value to write (0-255).
+        """
         self._impl.set_register(reg, value)
 
     def get_registers(self) -> List[int]:
-        """Returns all 16 internal registers as a list."""
+        """
+        Returns all 16 internal registers as a list.
+
+        Returns:
+            List[int]: A list of 16 integers containing the register values.
+        """
         if self._backend == Backend.AY_EMUL31:
             return [0] * 16 # Not easily available
         return self._impl.get_registers()
 
     def generate(self, num_samples: int) -> List[int]:
-        """Generates audio samples."""
+        """
+        Generates audio samples.
+
+        Args:
+            num_samples (int): The number of samples to generate.
+
+        Returns:
+            List[int]: A list of generated samples.
+        """
         if self._backend == Backend.CAPRICE32:
             return self._impl.generate(num_samples)
         elif self._backend == Backend.MAME:
@@ -309,26 +356,59 @@ class _AYBase:
         return []
 
     def play(self, sample_rate: Optional[int] = None, clock: Optional[int] = None) -> None:
-        """Starts live playback."""
+        """
+        Starts live playback.
+
+        Args:
+            sample_rate (Optional[int]): Audio sampling rate in Hz (default: same as class init).
+            clock (Optional[int]): Master clock frequency in Hz (default: same as class init).
+        """
         sr = sample_rate if sample_rate is not None else self._sample_rate
         cl = clock if clock is not None else self._clock
         self._impl.play(sr, cl)
 
     def stop(self) -> None:
-        """Stops live playback."""
+        """
+        Stops live playback.
+        """
         self._impl.stop()
 
     # MAME specific methods (delegated if backend is MAME)
     def set_flags(self, flags: int) -> None:
+        """
+        Set internal flags (MAME backend only).
+
+        Args:
+            flags (int): Flags to set.
+        """
         if self._backend == Backend.MAME:
             self._impl.set_flags(flags)
 
     def set_resistors_load(self, res_load0: float, res_load1: float, res_load2: float) -> None:
+        """
+        Set the resistors load for each channel (MAME backend only).
+
+        Args:
+            res_load0 (float): Resistor load for channel 0.
+            res_load1 (float): Resistor load for channel 1.
+            res_load2 (float): Resistor load for channel 2.
+        """
         if self._backend == Backend.MAME:
             self._impl.set_resistors_load(res_load0, res_load1, res_load2)
 
     # Caprice32 specific
     def set_stereo_mix(self, al: int, ar: int, bl: int, br: int, cl: int, cr: int) -> None:
+        """
+        Set stereo mixing volumes (Caprice32 backend only).
+
+        Args:
+            al (int): Volume for channel A on left.
+            ar (int): Volume for channel A on right.
+            bl (int): Volume for channel B on left.
+            br (int): Volume for channel B on right.
+            cl (int): Volume for channel C on left.
+            cr (int): Volume for channel C on right.
+        """
         if self._backend == Backend.CAPRICE32:
             self._impl.set_stereo_mix(al, ar, bl, br, cl, cr)
 
@@ -345,17 +425,38 @@ class _AYBase:
             self._impl.chip_type = value
 
 class ay8910(_AYBase):
-    """AY-3-8910: 3 channels, 2 I/O ports (Port A and Port B)."""
+    """
+    AY-3-8910: 3 channels, 2 I/O ports (Port A and Port B).
+
+    Args:
+        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        clock (int): Master clock frequency in Hz (default: 1000000).
+        sample_rate (int): Audio sampling rate in Hz (default: 44100).
+    """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=2)
 
 class ay8912(_AYBase):
-    """AY-3-8912: 3 channels, 1 I/O port (Port A)."""
+    """
+    AY-3-8912: 3 channels, 1 I/O port (Port A).
+
+    Args:
+        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        clock (int): Master clock frequency in Hz (default: 1000000).
+        sample_rate (int): Audio sampling rate in Hz (default: 44100).
+    """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=1)
 
 class ay8913(_AYBase):
-    """AY-3-8913: 3 channels, 0 I/O ports."""
+    """
+    AY-3-8913: 3 channels, 0 I/O ports.
+
+    Args:
+        backend (Backend): The emulation engine to use (default: Backend.CAPRICE32).
+        clock (int): Master clock frequency in Hz (default: 1000000).
+        sample_rate (int): Audio sampling rate in Hz (default: 44100).
+    """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=0)
 

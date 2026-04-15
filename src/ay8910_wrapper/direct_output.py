@@ -12,6 +12,12 @@ class DirectOutput:
     """
     Manages an audio stream to play sound from an emulator in real-time.
 
+    Args:
+        device (Any): The emulator instance generating audio.
+        sample_rate (int): Target sample rate for audio output (default: 44100).
+        channels (int): 1 for mono, 2 for stereo (default: 1).
+        clock (int): Master clock frequency (default: 1750000).
+
     Attributes:
         device (Any): The PSG emulator instance.
         sample_rate (int): Output sample rate in Hz.
@@ -19,15 +25,6 @@ class DirectOutput:
         stream (Optional[sd.OutputStream]): The current audio output stream.
     """
     def __init__(self, device: Any, sample_rate: int = 44100, channels: int = 1, clock: int = 1750000) -> None:
-        """
-        Initializes the direct output manager.
-
-        Args:
-            device: The emulator instance generating audio.
-            sample_rate: Target sample rate for audio output (default 44100).
-            channels: 1 for mono, 2 for stereo (default 1).
-            clock: Master clock frequency (default 1750000).
-        """
         self.device: Any = device
         self.sample_rate: int = sample_rate
         self.channels: int = channels

@@ -34,7 +34,7 @@ psg.play()
 # Set registers - sound changes immediately
 psg.set_register(0, 254) # Tone A Fine
 psg.set_register(1, 0)   # Tone A Coarse
-psg.set_register(7, 0x3E) # Enable Channel A
+psg.set_register(7, 0x3E) # Enable Tone A, disable others
 psg.set_register(8, 15)   # Max volume
 
 time.sleep(1)

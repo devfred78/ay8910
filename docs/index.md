@@ -9,11 +9,13 @@ A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring
 > This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
 
 This project contains a standalone C++ library for the AY-3-8910 sound chip. It now features a unified API with three main classes:
+
 - **`ay8910`**: Emulates the 3-channel PSG with 2 I/O ports.
 - **`ay8912`**: Emulates the 3-channel PSG with 1 I/O port.
 - **`ay8913`**: Emulates the 3-channel PSG with 0 I/O ports.
 
 At instantiation, you can choose between three emulation backends:
+
 - **`CAPRICE32` (default)**: The **recommended** engine. High accuracy, stereo mixing, and integrated live audio.
 - **`MAME`**: Based on the MAME implementation.
 - **`AY_EMUL31`**: A port of Sergey Bulba's Ay_Emul 3.1.
@@ -34,7 +36,7 @@ psg.play()
 # Set registers - sound changes immediately
 psg.set_register(0, 254) # Tone A Fine
 psg.set_register(1, 0)   # Tone A Coarse
-psg.set_register(7, 0x3E) # Enable Channel A
+psg.set_register(7, 0x3E) # Enable Tone A, disable others
 psg.set_register(8, 15)   # Max volume
 
 time.sleep(1)
