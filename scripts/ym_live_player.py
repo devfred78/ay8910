@@ -35,15 +35,15 @@ def read_nt_string(data: bytes, offset: int) -> Tuple[str, int]:
         return "", len(data)
     return data[offset:end].decode('latin-1', 'ignore'), end + 1
 
-def play_ym_live(filename: str, engine: str = "cap32") -> None:
+def play_ym_live(filename: str, backend: ay.Backend = ay.Backend.CAPRICE32) -> None:
     """
     Plays a YM chiptune file in real-time.
 
     Args:
         filename: Path to the .ym file.
-        engine: The engine to use ('cap32', 'mame' or 'ay_emul31').
+        backend: The emulation backend to use.
     """
-    print(f"Playing {filename}...")
+    print(f"Playing {filename} using {backend.name} backend...")
     try:
         with open(filename, 'rb') as f:
             data = f.read()
@@ -113,19 +113,14 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
 
     # Initializing PSG with the new API
     sample_rate = 44100
-    if engine == "cap32":
-        psg = ay.ay8912_cap32(clock, sample_rate)
+    psg = ay.ay8910(backend=backend, clock=clock, sample_rate=sample_rate)
+    
+    if backend == ay.Backend.CAPRICE32:
         psg.set_stereo_mix(255, 13, 170, 170, 13, 255)
-    elif engine == "ay_emul31":
-        psg = ay.ay_emul31()
+    elif backend == ay.Backend.AY_EMUL31:
         psg.chip_type = ay.ay_emul31_chip_type.YM_Chip
-    else:
-        # High fidelity configuration based on AY-3-8910 data manual (p.30-33)
-        # Using AY type, single output (electrical mixing).
-        # Note: RESISTOR_OUTPUT is temporarily disabled for better compatibility.
-        psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
+    elif backend == ay.Backend.MAME:
         psg.set_flags(ay.AY8910_SINGLE_OUTPUT | ay.AY8910_LEGACY_OUTPUT)
-        psg.start()
 
     psg.reset()
     
@@ -157,21 +152,14 @@ def play_ym_live(filename: str, engine: str = "cap32") -> None:
         print("\nPlayback finished.")
 
 def main():
-    parser = argparse.ArgumentParser(description="Live YM file player using the new .play() API")
+    parser = argparse.ArgumentParser(description="Live YM file player using the new architecture")
     parser.add_argument("input_file", help="Path to the .ym file")
-    group = parser.add_mutually_exclusive_group()
-    group.add_argument("--mame", action="store_true", help="Use MAME engine (mono) instead of Caprice32 (stereo)")
-    group.add_argument("--ay_emul31", action="store_true", help="Use Ay_Emul31 engine (mono)")
+    parser.add_argument("--backend", type=str, choices=["CAPRICE32", "MAME", "AY_EMUL31"], 
+                        default="CAPRICE32", help="Emulation backend to use (default: CAPRICE32)")
     args = parser.parse_args()
     
-    if args.mame:
-        engine = "mame"
-    elif args.ay_emul31:
-        engine = "ay_emul31"
-    else:
-        engine = "cap32"
-
-    play_ym_live(args.input_file, engine)
+    backend = ay.Backend[args.backend]
+    play_ym_live(args.input_file, backend)
 
 if __name__ == "__main__":
     main()

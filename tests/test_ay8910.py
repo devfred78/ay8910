@@ -11,9 +11,8 @@ class TestAY8910MAME(unittest.TestCase):
         """Set up a fresh AY8910 instance before each test."""
         self.clock = 2000000  # 2 MHz
         self.sample_rate = 44100
-        self.psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, self.clock, 1, 0)
+        self.psg = ay.ay8910(backend=ay.Backend.MAME, clock=self.clock, sample_rate=self.sample_rate)
         self.psg.set_flags(ay.AY8910_LEGACY_OUTPUT)
-        self.psg.start()
         self.psg.reset()
 
     def test_initialization(self) -> None:
@@ -41,7 +40,7 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.data_w(15)    # Max volume
 
         num_samples = self.sample_rate // 10 # 0.1 seconds of audio
-        samples = self.psg.generate(num_samples, self.sample_rate)
+        samples = self.psg.generate(num_samples)
 
         self.assertEqual(len(samples), num_samples)
         self.assertTrue(np.any(samples), "Generated samples should not be all zero.")
@@ -61,14 +60,14 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.address_w(1)
         self.psg.data_w((period >> 8) & 0x0F)
 
-        samples_before_reset = np.array(self.psg.generate(self.sample_rate // 100, self.sample_rate))
+        samples_before_reset = np.array(self.psg.generate(self.sample_rate // 100))
         self.assertGreater(np.std(samples_before_reset), 1000, "Should produce audible sound before reset.")
 
         # Now reset the chip
         self.psg.reset()
 
         # Generate samples after reset
-        samples_after_reset = np.array(self.psg.generate(self.sample_rate // 100, self.sample_rate), dtype=np.float32)
+        samples_after_reset = np.array(self.psg.generate(self.sample_rate // 100), dtype=np.float32)
         
         # A "silent" AY-8910 channel still outputs a small DC voltage.
         # A silent signal has a standard deviation of (or very close to) zero.
@@ -79,11 +78,10 @@ class TestAY8910MAME(unittest.TestCase):
 
     def test_different_psg_types(self) -> None:
         """Test initialization with different PSG types (AY vs YM)."""
-        psg_ay = ay.ay8910(ay.psg_type.PSG_TYPE_AY, self.clock, 1, 0)
+        # Note: Current wrapper defaults to AY for MAME backend. 
+        # Switching PSG type for MAME would need a backend_options parameter if we wanted to support it via _AYBase.
+        psg_ay = ay.ay8910(backend=ay.Backend.MAME, clock=self.clock)
         self.assertIsInstance(psg_ay, ay.ay8910)
-        
-        psg_ym = ay.ay8910(ay.psg_type.PSG_TYPE_YM, self.clock, 1, 0)
-        self.assertIsInstance(psg_ym, ay.ay8910)
 
     def test_noise_generation(self) -> None:
         """Test that enabling noise produces a signal."""
@@ -97,7 +95,7 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.address_w(8) # Volume A
         self.psg.data_w(15)
         
-        samples = np.array(self.psg.generate(1000, self.sample_rate))
+        samples = np.array(self.psg.generate(1000))
         self.assertTrue(np.any(samples), "Noise should produce non-zero samples.")
         
         # Noise should be somewhat random, so checking std dev
@@ -129,7 +127,7 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.address_w(13)
         self.psg.data_w(0x08)
         
-        samples = np.array(self.psg.generate(4000, self.sample_rate))
+        samples = np.array(self.psg.generate(4000))
         self.assertTrue(np.any(samples), "Envelope should produce non-zero samples.")
 
     def test_output_flags(self) -> None:
@@ -144,7 +142,7 @@ class TestAY8910MAME(unittest.TestCase):
         
         # Legacy output
         self.psg.set_flags(ay.AY8910_LEGACY_OUTPUT)
-        samples_legacy = np.array(self.psg.generate(100, self.sample_rate))
+        samples_legacy = np.array(self.psg.generate(100))
         
         # Reset and use Single output
         self.psg.reset()
@@ -156,7 +154,7 @@ class TestAY8910MAME(unittest.TestCase):
         self.psg.data_w(100)
         self.psg.address_w(8)
         self.psg.data_w(15)
-        samples_single = np.array(self.psg.generate(100, self.sample_rate))
+        samples_single = np.array(self.psg.generate(100))
         
         self.assertTrue(np.any(samples_legacy))
         self.assertTrue(np.any(samples_single))
@@ -166,15 +164,15 @@ class TestAY8910MAME(unittest.TestCase):
 class TestAY8912Caprice32(unittest.TestCase):
 
     def setUp(self) -> None:
-        """Set up a fresh ay8912_cap32 instance before each test."""
-        self.clock = 1000000  # 1 MHz (standard for YM in some contexts, Caprice32 handles it)
+        """Set up a fresh ay8912 instance with Caprice32 backend before each test."""
+        self.clock = 1000000  # 1 MHz
         self.sample_rate = 44100
-        self.psg = ay.ay8912_cap32(self.clock, self.sample_rate)
+        self.psg = ay.ay8912(backend=ay.Backend.CAPRICE32, clock=self.clock, sample_rate=self.sample_rate)
         self.psg.reset()
 
     def test_initialization(self) -> None:
         """Test that the Caprice32 emulator can be initialized."""
-        self.assertIsInstance(self.psg, ay.ay8912_cap32)
+        self.assertIsInstance(self.psg, ay.ay8912)
         self.assertIsNotNone(self.psg)
 
     def test_stereo_generation(self) -> None:

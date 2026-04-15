@@ -6,9 +6,8 @@ import ay8910_wrapper as ay
 
 
 def generate_tone_mame(clock: int, sr: int, freq: float, duration: int) -> List[int]:
-    psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
+    psg = ay.ay8910(backend=ay.Backend.MAME, clock=clock, sample_rate=sr)
     psg.set_flags(ay.AY8910_LEGACY_OUTPUT | ay.AY8910_SINGLE_OUTPUT)
-    psg.start()
     psg.reset()
     
     # Enable Tone A
@@ -25,22 +24,18 @@ def generate_tone_mame(clock: int, sr: int, freq: float, duration: int) -> List[
     psg.address_w(8)
     psg.data_w(15)
     
-    samples = psg.generate(sr * duration, sr)
+    samples = psg.generate(sr * duration)
     return samples
 
 def generate_tone_cap32(clock: int, sr: int, freq: float, duration: int) -> List[int]:
-    psg = ay.ay8912_cap32(clock, sr)
+    psg = ay.ay8912(backend=ay.Backend.CAPRICE32, clock=clock, sample_rate=sr)
     psg.reset()
     
     # Enable Tone A
     psg.address_w(7)
     psg.data_w(0b00111110)
     
-    # Caprice32 logic: TonA is period in 1/8 ticks?
-    # Actually step_logic increments ton_count every tick.
-    # Logic runs at clock/8.
-    # So if clock=1MHz, logic=125kHz.
-    # period = (clock/8) / (2 * freq) ?
+    # Caprice32 logic runs at clock/8.
     period = int((clock/8) / (2 * freq))
     
     psg.address_w(0)
@@ -79,4 +74,4 @@ if __name__ == "__main__":
     cap32 = generate_tone_cap32(clock, sr, freq, duration)
     save_wav("test_cap32.wav", cap32, sr)
     
-    print("Done. Compare test_mame.wav and test_cap32.wav")
+    print("Done.")

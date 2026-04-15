@@ -1,6 +1,6 @@
 # AY-3-8910 Standalone Library and Python Wrapper
 
-A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis.
+A Python wrapper for the AY-3-8910, AY-3-8912 and AY-3-8913 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis.
 
 > **A Note on this Project's Origin**
 >
@@ -8,12 +8,15 @@ A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring
 >
 > This, therefore, is the reason for `AY8910`'s existence: you can dissect the code to see how Gemini and Junie (with my guidance) went about building it, or you can ignore all that and just use this library for your own needs!
 
-This project contains a standalone C++ library for the AY-3-8910 sound chip. It features three emulation engines:
-- **Caprice32-based (`ay8912_cap32`)**: The **recommended** engine for all new projects. It offers superior accuracy, stereo mixing, and integrated live audio support.
-- **Ay_Emul31-based (`ay_emul31`)**: A port of Sergey Bulba's Ay_Emul 3.1. It provides high-quality mono emulation with accurate AY and YM volume tables.
-- **MAME-based (`ay8910`)**: Kept primarily for **historical reasons** and legacy compatibility.
+This project contains a standalone C++ library for the AY-3-8910 sound chip. It now features a unified API with three main classes:
+- **`ay8910`**: Emulates the 3-channel PSG with 2 I/O ports.
+- **`ay8912`**: Emulates the 3-channel PSG with 1 I/O port.
+- **`ay8913`**: Emulates the 3-channel PSG with 0 I/O port.
 
-It also includes a Python wrapper to make these emulators accessible from Python scripts, allowing for programmatic chiptune generation and `.ym` file playback.
+At instantiation, you can choose between three emulation backends:
+- **`CAPRICE32` (default)**: The **recommended** engine. High accuracy, stereo mixing, and integrated live audio.
+- **`MAME`**: Based on the MAME implementation.
+- **`AY_EMUL31`**: A port of Sergey Bulba's Ay_Emul 3.1.
 
 ## Quick Start (Live Audio)
 
@@ -21,8 +24,8 @@ It also includes a Python wrapper to make these emulators accessible from Python
 import ay8910_wrapper as ay
 import time
 
-# Initialize
-psg = ay.ay8912_cap32(1000000, 44100)
+# Initialize an AY-3-8912 using the Caprice32 backend (default)
+psg = ay.ay8912(clock=1000000, sample_rate=44100)
 psg.set_stereo_mix(255, 13, 170, 170, 13, 255)
 
 # Start live playback!
@@ -39,12 +42,12 @@ psg.stop()
 ```
 
 ```sh
-# Play a .ym file using the new live script (defaults to Caprice32)
+# Play a .ym file using the live player (defaults to ay8910 + Caprice32)
 python scripts\ym_live_player.py PATH\TO\YM_FILE.YM
 
-# Use the MAME or Ay_Emul31 engines
-python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --mame
-python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --ay_emul31
+# Explicitly choose a backend
+python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --backend MAME
+python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --backend AY_EMUL31
 ```
 
 ## Installation
@@ -59,9 +62,7 @@ This will automatically install the necessary dependencies (`lhafile`, `numpy`, 
 
 For developers who want to compile from source or contribute, please refer to the [Contributing Guide](https://devfred78.github.io/ay8910/contribute/).
 
-## Basic Usage in Python (Legacy MAME engine)
-
-> **Note**: This section demonstrates the legacy `ay8910` class. For modern applications, please refer to the **Quick Start** section or the **Caprice32** section below.
+## Basic Usage in Python
 
 ```python
 import ay8910_wrapper as ay
@@ -79,34 +80,29 @@ def write_wav(filename, samples, sample_rate):
 
 # --- Main Program ---
 
-# 1. Initialize the emulator
-clock = 2000000  # 2 MHz, a common clock for this chip
+# 1. Initialize the emulator using the MAME backend
+clock = 2000000  # 2 MHz
 sample_rate = 44100
-psg = ay.ay8910(ay.psg_type.PSG_TYPE_AY, clock, 1, 0)
+psg = ay.ay8910(backend=ay.Backend.MAME, clock=clock, sample_rate=sample_rate)
 psg.set_flags(ay.AY8910_LEGACY_OUTPUT)
-psg.start()
 psg.reset()
 
 # 2. Program the chip registers
 # Enable Tone on Channel A, disable everything else
-psg.address_w(7)
-psg.data_w(0b00111110)
+psg.set_register(7, 0b00111110)
 
 # Set Channel A frequency to Middle C (261.63 Hz)
 period = int(clock / (16 * 261.63))
-psg.address_w(0)  # Fine tune
-psg.data_w(period & 0xFF)
-psg.address_w(1)  # Coarse tune
-psg.data_w((period >> 8) & 0x0F)
+psg.set_register(0, period & 0xFF)         # Fine tune
+psg.set_register(1, (period >> 8) & 0x0F)  # Coarse tune
 
 # Set Channel A volume to max
-psg.address_w(8)
-psg.data_w(15)
+psg.set_register(8, 15)
 
 # 3. Generate audio
 # Generate 2 seconds of audio
 num_samples = sample_rate * 2
-samples = psg.generate(num_samples, sample_rate)
+samples = psg.generate(num_samples)
 
 # 4. Save the result
 write_wav("tone_output.wav", samples, sample_rate)
@@ -120,18 +116,19 @@ For a complete list of all available functions, classes, and constants, please s
 
 The project includes several scripts for playing chiptunes and running tests. For a detailed description of how to use them, please see the **[Scripts and Tools](https://devfred78.github.io/ay8910/scripts/)** page.
 
-## Recommended: Caprice32 (Amstrad CPC) Emulation
+## Unified Architecture
 
-The **Caprice32** engine is the preferred choice for most users. It provides more authentic sound synthesis and advanced features like stereo panning.
+The new architecture allows you to choose the exact chip model and the emulation engine that best fits your needs.
 
 ```python
-# Initialize the Caprice32-style emulator
-psg_cpc = ay.ay8912_cap32(clock, sample_rate)
-# Set standard CPC stereo mix (Channel A=Left, B=Center, C=Right)
-psg_cpc.set_stereo_mix(255, 13, 170, 170, 13, 255)
+# Initialize an AY-3-8910 (2 I/O ports) using the Caprice32 backend
+psg_8910 = ay.ay8910(backend=ay.Backend.CAPRICE32)
 
-# Generate stereo audio (interleaved)
-stereo_samples = psg_cpc.generate(num_samples)
+# Initialize an AY-3-8912 (1 I/O port) using the MAME backend
+psg_8912 = ay.ay8912(backend=ay.Backend.MAME)
+
+# Initialize an AY-3-8913 (0 I/O ports) using the Ay_Emul31 backend
+psg_8913 = ay.ay8913(backend=ay.Backend.AY_EMUL31)
 ```
 
 ## Contributing Guide

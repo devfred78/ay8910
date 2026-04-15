@@ -46,39 +46,43 @@ class TestDirectOutput(unittest.TestCase):
         self.assertIsNone(do.stream)
 
     def test_callback_mono_mame(self):
-        # Test callback with mono chip (MAME signature)
+        # Test callback with mono chip (MAME backend)
+        # We need to make the mock chip an instance of _AYBase to trigger the new logic
+        from ay8910_wrapper import _AYBase
+        self.mock_chip.__class__ = _AYBase
+        
         do = DirectOutput(self.mock_chip, self.sample_rate, 1, self.clock)
         outdata = np.zeros((10, 1), dtype=np.int16)
         
-        # MAME generate signature: generate(frames, sample_rate)
+        # New API generate signature: generate(frames)
         self.mock_chip.generate.return_value = [100] * 10
         
         do._callback(outdata, 10, None, None)
         
-        self.mock_chip.generate.assert_called_with(10, self.sample_rate)
+        self.mock_chip.generate.assert_called_with(10)
         self.assertTrue(np.all(outdata == 100))
 
     def test_callback_mono_ay_emul31(self):
-        # Test callback with mono chip (Ay_Emul31 signature)
-        # We need to simulate a TypeError for the first call to trigger the fallback
-        def side_effect(frames, *args):
-            if len(args) == 1: # MAME signature
-                raise TypeError("Wrong number of arguments")
-            return [200] * frames
-            
-        self.mock_chip.generate.side_effect = side_effect
+        # Test callback with mono chip (Ay_Emul31 backend)
+        # We need to make the mock chip an instance of _AYBase to trigger the new logic
+        from ay8910_wrapper import _AYBase
+        self.mock_chip.__class__ = _AYBase
         
         do = DirectOutput(self.mock_chip, self.sample_rate, 1, self.clock)
         outdata = np.zeros((10, 1), dtype=np.int16)
         
+        self.mock_chip.generate.return_value = [200] * 10
+        
         do._callback(outdata, 10, None, None)
         
-        # It should have tried both
-        self.assertEqual(self.mock_chip.generate.call_count, 2)
+        self.mock_chip.generate.assert_called_with(10)
         self.assertTrue(np.all(outdata == 200))
 
     def test_callback_stereo_caprice32(self):
         # Test callback with stereo chip (Caprice32 signature)
+        from ay8910_wrapper import _AYBase
+        self.mock_chip.__class__ = _AYBase
+        
         do = DirectOutput(self.mock_chip, self.sample_rate, 2, self.clock)
         outdata = np.zeros((10, 2), dtype=np.int16)
         
@@ -95,8 +99,7 @@ class TestLiveSupport(unittest.TestCase):
     @patch('sounddevice.OutputStream')
     def test_play_stop_methods(self, mock_sd):
         # Test that the injected play/stop methods work
-        chip = ay.ay8910(ay.psg_type.PSG_TYPE_AY, 2000000, 1, 0)
-        chip.start()
+        chip = ay.ay8910(backend=ay.Backend.MAME, clock=2000000, sample_rate=44100)
         
         self.assertFalse(hasattr(chip, '_live_output')) # Actually it's in a global dict in __init__.py
         

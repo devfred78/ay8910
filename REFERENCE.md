@@ -10,10 +10,14 @@ The `ay8910_wrapper` package provides a high-level interface to the PSG emulator
     options:
       members:
         - ay8910
+        - ay8912
+        - ay8913
+        - Backend
+        - psg_type
+        - ay_emul31_chip_type
+        - DirectOutput
         - ay8912_cap32
         - ay_emul31
-        - psg_type
-        - DirectOutput
       show_root_heading: false
       show_source: false
       inherited_members: true
