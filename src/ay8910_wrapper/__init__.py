@@ -714,7 +714,7 @@ class ay8910(AYBase):
     AY-3-8910: 3 channels, 2 I/O ports (Port A and Port B).
 
     This class provides a full implementation of the AY-3-8910 chip with two 
-    8-bit parallel I/O ports.
+    8-bit parallel I/O ports. Inherits from `AYBase`.
 
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
@@ -726,6 +726,7 @@ class ay8910(AYBase):
     Example:
         ```python
         psg = ay8910(backend=Backend.MAME)
+        psg.play()  # Start real-time audio playback
         ```
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
@@ -737,6 +738,7 @@ class ay8912(AYBase):
 
     This class emulates the AY-3-8912 variant, which is pin-compatible with the 
     AY-3-8910 but features only one 8-bit parallel I/O port to reduce pin count.
+    Inherits from `AYBase`.
 
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
@@ -748,6 +750,7 @@ class ay8912(AYBase):
     Example:
         ```python
         psg = ay8912(backend=Backend.CAPRICE32)
+        psg.play()  # Start real-time audio playback
         ```
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
@@ -759,6 +762,7 @@ class ay8913(AYBase):
 
     This class emulates the AY-3-8913 variant, which has no I/O ports. 
     It was designed for applications where only sound generation is needed.
+    Inherits from `AYBase`.
 
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
@@ -769,6 +773,7 @@ class ay8913(AYBase):
     Example:
         ```python
         psg = ay8913(backend=Backend.AY_EMUL31)
+        psg.play()  # Start real-time audio playback
         ```
     """
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):

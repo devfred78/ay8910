@@ -122,7 +122,7 @@ When a Pull Request is opened, the following actions are automatically launched 
 1.  **Linting**: Code style check with `ruff`.
 2.  **Build & Test**: 
     - Compilation of the project on **Linux, Windows, and macOS**.
-    - Execution of unit tests on **Python 3.8 and 3.13** versions.
+    - Execution of unit tests on **Python 3.9 to 3.14**.
 
 Additionally, when a **version tag** (starting with `v`) is pushed to the repository, the **Build and Publish** workflow is triggered to automatically build wheels for all platforms and publish them to **PyPI**.
 
