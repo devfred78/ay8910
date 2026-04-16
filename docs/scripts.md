@@ -16,6 +16,7 @@ uv run scripts/ym_player.py <input_file.ym> [options]
 ```
 
 **Options:**
+
 - `-p`, `--play`: Play the file live instead of rendering to WAV.
 - `-o <file.wav>`, `--output <file.wav>`: Output WAV file name (default: `output_ym.wav`).
 - `--mame`: Use the MAME emulation engine (mono) instead of the Caprice32 engine (stereo).
@@ -39,6 +40,7 @@ uv run scripts/ym_live_player.py <input_file.ym> [options]
 ```
 
 **Options:**
+
 - `--mame`: Use the MAME engine (mono).
 - `--ay_emul31`: Use the Ay_Emul31 engine (mono).
 - (Default): Use the Caprice32 engine (stereo).
