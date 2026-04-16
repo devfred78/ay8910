@@ -168,6 +168,26 @@ psg.set_resistors_load(1000.0, 1000.0, 1000.0)
 psg.play()
 # ... program registers ...
 ```
+
+#### 4. Using DirectOutput for manual playback control
+For more fine-grained control over the audio stream, use the `DirectOutput` class directly.
+
+```python
+import ay8910_wrapper as ay
+from ay8910_wrapper import DirectOutput
+
+# Create any PSG instance
+psg = ay.ay8910(backend=ay.Backend.MAME)
+
+# Initialize and start the audio output manually
+audio = DirectOutput(psg)
+audio.start()
+
+# ... sound generation ...
+
+# Stop playback when done
+audio.stop()
+```
 """
 
 import enum
