@@ -68,7 +68,7 @@ def run_tests_for_python_version(python_version, root_dir, fix=False):
 
         print(f"\n--- Installing dependencies for Python {python_version} ---")
         # We must use 'uv pip install' with the --python flag to target our temporary venv
-        if not run_command(["uv", "pip", "install", "--python", python_exe, ".[test,dev]"], env=env):
+        if not run_command(["uv", "pip", "install", "--python", python_exe, ".[test,dev,tools]"], env=env):
             print(f"Failed to install dependencies for Python {python_version}")
             return False
 

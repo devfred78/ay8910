@@ -48,6 +48,8 @@ tools = [
 test = [
     "pytest",
     "pytest-cov",
+    "numpy",
+    "sounddevice",
 ]
 dev = [
     "ruff",

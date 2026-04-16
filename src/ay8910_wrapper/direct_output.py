@@ -1,8 +1,8 @@
 """
 Handles real-time audio output using sounddevice.
 """
-import threading
 import sys
+import threading
 from typing import Any, Optional
 
 try:

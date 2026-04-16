@@ -10,7 +10,6 @@ Note:
 """
 import argparse
 import struct
-import sys
 import time
 
 import ay8910_wrapper as ay
