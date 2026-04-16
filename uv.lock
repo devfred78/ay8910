@@ -11,13 +11,6 @@ resolution-markers = [
 name = "ay8910-wrapper"
 version = "0.0.0"
 source = { editable = "." }
-dependencies = [
-    { name = "lhafile" },
-    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
-    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
-    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
-    { name = "sounddevice" },
-]
 
 [package.optional-dependencies]
 dev = [
@@ -36,21 +29,28 @@ test = [
     { name = "pytest", version = "9.0.3", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.10'" },
     { name = "pytest-cov" },
 ]
+tools = [
+    { name = "lhafile" },
+    { name = "numpy", version = "2.0.2", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version < '3.10'" },
+    { name = "numpy", version = "2.2.6", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version == '3.10.*'" },
+    { name = "numpy", version = "2.4.4", source = { registry = "https://pypi.org/simple" }, marker = "python_full_version >= '3.11'" },
+    { name = "sounddevice" },
+]
 
 [package.metadata]
 requires-dist = [
-    { name = "lhafile" },
+    { name = "lhafile", marker = "extra == 'tools'" },
     { name = "mkdocs", marker = "extra == 'docs'" },
     { name = "mkdocs-material", marker = "extra == 'docs'" },
     { name = "mkdocstrings", extras = ["python"], marker = "extra == 'docs'" },
     { name = "mypy", marker = "extra == 'dev'" },
-    { name = "numpy", specifier = ">=2.0.2" },
+    { name = "numpy", marker = "extra == 'tools'", specifier = ">=2.0.2" },
     { name = "pytest", marker = "extra == 'test'" },
     { name = "pytest-cov", marker = "extra == 'test'" },
     { name = "ruff", marker = "extra == 'dev'" },
-    { name = "sounddevice", specifier = ">=0.5.5" },
+    { name = "sounddevice", marker = "extra == 'tools'", specifier = ">=0.5.5" },
 ]
-provides-extras = ["test", "dev", "docs"]
+provides-extras = ["tools", "test", "dev", "docs"]
 
 [[package]]
 name = "babel"

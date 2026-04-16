@@ -6,12 +6,16 @@ The `scripts/` directory contains various utility scripts for playing chiptunes,
 
 These scripts allow you to play `.ym` chiptune files using the integrated PSG emulators.
 
-### `ym_player.py`
+### `ym_player`
 
 This is the main player and renderer. It can play `.ym` files live or render them to a `.wav` file.
 
 **Usage:**
 ```bash
+# If installed via pip
+ym_player <input_file.ym> [options]
+
+# Or using uv from the source
 uv run scripts/ym_player.py <input_file.ym> [options]
 ```
 
@@ -24,18 +28,22 @@ uv run scripts/ym_player.py <input_file.ym> [options]
 **Example:**
 ```bash
 # Play a file live using the stereo Caprice32 engine
-uv run scripts/ym_player.py music.ym -p
+ym_player music.ym -p
 
 # Render a file to WAV using the MAME engine
-uv run scripts/ym_player.py music.ym --mame -o my_render.wav
+ym_player music.ym --mame -o my_render.wav
 ```
 
-### `ym_live_player.py`
+### `ym_live_player`
 
 A specialized player that demonstrates the high-level `.play()` API. It focuses on real-time playback and offers support for more emulation engines.
 
 **Usage:**
 ```bash
+# If installed via pip
+ym_live_player <input_file.ym> [options]
+
+# Or using uv from the source
 uv run scripts/ym_live_player.py <input_file.ym> [options]
 ```
 
@@ -45,7 +53,7 @@ uv run scripts/ym_live_player.py <input_file.ym> [options]
 - `--ay_emul31`: Use the Ay_Emul31 engine (mono).
 - (Default): Use the Caprice32 engine (stereo).
 
-**Note:** This script requires the `lhafile` library for compressed `.ym` files.
+**Note:** These scripts require the `lhafile` library for compressed `.ym` files, as well as `numpy` and `sounddevice` for live audio playback. You can install all of them with the `[tools]` option: `pip install ay8910_wrapper[tools]`.
 
 ---
 

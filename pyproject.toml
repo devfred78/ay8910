@@ -20,9 +20,6 @@ classifiers = [
     "Programming Language :: C++",
 ]
 dependencies = [
-    "lhafile",
-    "numpy>=2.0.2",
-    "sounddevice>=0.5.5",
 ]
 
 [project.urls]
@@ -30,7 +27,8 @@ Homepage = "https://github.com/devfred78/ay8910"
 Documentation = "https://devfred78.github.io/ay8910"
 
 [project.scripts]
-play_ym = "scripts.ym_player:main"
+ym_player = "ay8910_wrapper.tools.ym_player:main"
+ym_live_player = "ay8910_wrapper.tools.ym_live_player:main"
 
 [tool.scikit-build]
 cmake.source-dir = "."
@@ -39,6 +37,11 @@ wheel.packages = ["src/ay8910_wrapper"]
 install.strip = false
 
 [project.optional-dependencies]
+tools = [
+    "lhafile",
+    "numpy>=2.0.2",
+    "sounddevice>=0.5.5",
+]
 test = [
     "pytest",
     "pytest-cov",

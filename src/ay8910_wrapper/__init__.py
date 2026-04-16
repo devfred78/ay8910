@@ -334,6 +334,7 @@ class AYBase:
             `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz. Default: 1000000.
             Typical values:
+            
             - **Amstrad CPC**: 1000000 (1.0 MHz)
             - **ZX Spectrum**: 1750000 (1.75 MHz) or 1773400 (1.77 MHz)
             - **Atari ST**: 2000000 (2.0 MHz)
@@ -560,6 +561,10 @@ class AYBase:
     def play(self, sample_rate: Optional[int] = None, clock: Optional[int] = None) -> None:
         """
         Starts live playback.
+
+        Note:
+            Requires `numpy` and `sounddevice` libraries.
+            Install them with: `pip install ay8910_wrapper[tools]`
 
         Args:
             sample_rate (Optional[int]): Audio sampling rate in Hz (default: same as class init).

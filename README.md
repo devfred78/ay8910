@@ -44,12 +44,12 @@ psg.stop()
 ```
 
 ```sh
-# Play a .ym file using the live player (defaults to ay8910 + Caprice32)
-python scripts\ym_live_player.py PATH\TO\YM_FILE.YM
+# Play a .ym file using the live player
+ym_live_player PATH\TO\YM_FILE.YM
 
 # Explicitly choose a backend
-python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --backend MAME
-python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --backend AY_EMUL31
+ym_live_player PATH\TO\YM_FILE.YM --backend MAME
+ym_live_player PATH\TO\YM_FILE.YM --backend AY_EMUL31
 ```
 
 ## Installation
@@ -57,10 +57,14 @@ python scripts\ym_live_player.py PATH\TO\YM_FILE.YM --backend AY_EMUL31
 You can install the library directly from [PyPI](https://pypi.org/project/ay8910-wrapper/):
 
 ```sh
+# Base installation (emulator only)
 pip install ay8910_wrapper
+
+# Full installation with playback tools and LHA support
+pip install ay8910_wrapper[tools]
 ```
 
-This will automatically install the necessary dependencies (`lhafile`, `numpy`, `sounddevice`).
+The base installation has no external dependencies. The `[tools]` option adds `lhafile`, `numpy`, and `sounddevice` which are required for the command-line players and real-time audio output.
 
 For developers who want to compile from source or contribute, please refer to the [Contributing Guide](https://devfred78.github.io/ay8910/contribute/).
 

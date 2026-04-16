@@ -2,15 +2,24 @@
 Handles real-time audio output using sounddevice.
 """
 import threading
+import sys
 from typing import Any, Optional
 
-import numpy as np
-import sounddevice as sd
+try:
+    import numpy as np
+    import sounddevice as sd
+except ImportError:
+    np = None  # type: ignore
+    sd = None  # type: ignore
 
 
 class DirectOutput:
     """
     Manages an audio stream to play sound from an emulator in real-time.
+
+    Note:
+        Requires `numpy` and `sounddevice` libraries.
+        Install them with: `pip install ay8910_wrapper[tools]`
 
     Args:
         device (Any): The emulator instance generating audio.
@@ -92,6 +101,12 @@ class DirectOutput:
             audio.start()
             ```
         """
+        if sd is None or np is None:
+            print("ERROR: The 'sounddevice' and 'numpy' libraries are not installed.", file=sys.stderr)
+            print("Real-time audio output is not available. Please install them by running:", file=sys.stderr)
+            print("pip install ay8910_wrapper[tools]", file=sys.stderr)
+            raise ImportError("Missing dependencies: sounddevice, numpy")
+
         if self.stream is None:
             self.stream = sd.OutputStream(
                 samplerate=self.sample_rate,
