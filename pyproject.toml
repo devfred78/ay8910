@@ -5,7 +5,7 @@ build-backend = "scikit_build_core.build"
 [project]
 name = "ay8910_wrapper"
 version = "0.0.0"
-description = "A Python wrapper for the AY-3-8910 and AY-3-8912 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis."
+description = "A Python wrapper for the AY-3-8910, AY-3-8912 and AY-3-8913 sound chip emulators, featuring real-time audio playback and cycle-accurate synthesis."
 readme = "README.md"
 requires-python = ">=3.9,<3.15"
 license = { text = "MIT" }
@@ -13,11 +13,14 @@ authors = [
     { name = "devfred78", email = "97401939+devfred78@users.noreply.github.com" }
 ]
 classifiers = [
-    "Development Status :: 4 - Beta",
+    "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Topic :: Multimedia :: Sound/Audio",
     "Programming Language :: Python :: 3",
     "Programming Language :: C++",
+    "Operating System :: MacOS X",
+    "Operating System :: Microsoft :: Windows",
+    "Operating System :: POSIX :: Linux",
 ]
 dependencies = [
 ]

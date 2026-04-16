@@ -12,7 +12,7 @@ This project contains a standalone C++ library for the AY-3-8910 sound chip. It 
 
 - **`ay8910`**: Emulates the 3-channel PSG with 2 I/O ports.
 - **`ay8912`**: Emulates the 3-channel PSG with 1 I/O port.
-- **`ay8913`**: Emulates the 3-channel PSG with 0 I/O ports.
+- **`ay8913`**: Emulates the 3-channel PSG with 0 I/O port.
 
 At instantiation, you can choose between three emulation backends:
 
