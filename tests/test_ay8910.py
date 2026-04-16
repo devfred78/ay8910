@@ -79,7 +79,7 @@ class TestAY8910MAME(unittest.TestCase):
     def test_different_psg_types(self) -> None:
         """Test initialization with different PSG types (AY vs YM)."""
         # Note: Current wrapper defaults to AY for MAME backend. 
-        # Switching PSG type for MAME would need a backend_options parameter if we wanted to support it via _AYBase.
+        # Switching PSG type for MAME would need a backend_options parameter if we wanted to support it via AYBase.
         psg_ay = ay.ay8910(backend=ay.Backend.MAME, clock=self.clock)
         self.assertIsInstance(psg_ay, ay.ay8910)
 

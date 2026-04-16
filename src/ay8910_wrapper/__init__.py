@@ -196,19 +196,23 @@ from .direct_output import DirectOutput
 _live_outputs: Dict[Any, DirectOutput] = {}
 
 class Backend(enum.Enum):
-    """Enumeration of available emulation backends."""
+    """
+    Enumeration of available emulation backends.
+
+    Attributes:
+        CAPRICE32: Backend derived from the Caprice32 emulator. 
+            Supports stereo mixing via `set_stereo_mix`. It is the default backend.
+        MAME: Backend derived from MAME (Multiple Adult Mame Emulator). 
+            Supports advanced features like resistor modeling (`set_resistors_load`) 
+            and various output flags (`set_flags`).
+        AY_EMUL31: Backend based on the Ay_Emul 3.1 engine. 
+            Supports specific chip type selection via the `chip_type` property.
+    """
     CAPRICE32 = "caprice32"
     MAME = "mame"
     AY_EMUL31 = "ay_emul31"
 
 def _add_live_support(cls: Type[Any], channels: int) -> None:
-    """
-    Adds live audio playback support to a PSG class by injecting 'play' and 'stop' methods.
-
-    Args:
-        cls: The PSG class to enhance.
-        channels: Number of audio channels (1 for mono, 2 for stereo).
-    """
     def play(self: Any, sample_rate: int = 44100, clock: int = 1750000) -> None:
         """
         Starts live audio playback for this PSG instance.
@@ -301,7 +305,7 @@ class ay_emul31_chip_type:
     AY_Chip = _ay_emul31_chip_type_native.AY_Chip
     YM_Chip = _ay_emul31_chip_type_native.YM_Chip
 
-class _AYBase:
+class AYBase:
     """
     Base class for AY-3-891x wrappers to provide a common interface.
 
@@ -319,7 +323,7 @@ class _AYBase:
 
     Example:
         ```python
-        psg = _AYBase(backend=Backend.MAME, clock=1000000)
+        psg = AYBase(backend=Backend.MAME, clock=1000000)
         psg.set_register(0, 0xFE)
         ```
     """
@@ -680,9 +684,12 @@ class _AYBase:
         if self._backend == Backend.AY_EMUL31:
             self._impl.chip_type = value
 
-class ay8910(_AYBase):
+class ay8910(AYBase):
     """
     AY-3-8910: 3 channels, 2 I/O ports (Port A and Port B).
+
+    This class provides a full implementation of the AY-3-8910 chip with two 
+    8-bit parallel I/O ports.
 
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
@@ -699,9 +706,12 @@ class ay8910(_AYBase):
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=2)
 
-class ay8912(_AYBase):
+class ay8912(AYBase):
     """
     AY-3-8912: 3 channels, 1 I/O port (Port A).
+
+    This class emulates the AY-3-8912 variant, which is pin-compatible with the 
+    AY-3-8910 but features only one 8-bit parallel I/O port to reduce pin count.
 
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
@@ -718,15 +728,17 @@ class ay8912(_AYBase):
     def __init__(self, backend: Backend = Backend.CAPRICE32, clock: int = 1000000, sample_rate: int = 44100):
         super().__init__(backend, clock, sample_rate, ioports=1)
 
-class ay8913(_AYBase):
+class ay8913(AYBase):
     """
     AY-3-8913: 3 channels, 0 I/O ports.
+
+    This class emulates the AY-3-8913 variant, which has no I/O ports. 
+    It was designed for applications where only sound generation is needed.
 
     Args:
         backend (Backend): The emulation engine to use (`Backend.CAPRICE32`,
             `Backend.MAME`, or `Backend.AY_EMUL31`). Default: `Backend.CAPRICE32`.
         clock (int): Master clock frequency in Hz (default: 1000000).
-            (e.g., 1500000 to 2000000 for Arcade boards).
         sample_rate (int): Audio sampling rate in Hz (default: 44100).
 
     Example:

@@ -53,10 +53,10 @@ class DirectOutput:
         """
         with self._lock:
             # Check if it's one of our new wrapper classes
-            from . import _AYBase
-            if isinstance(self.device, _AYBase):
+            from . import AYBase
+            if isinstance(self.device, AYBase):
                 chunk = self.device.generate(frames)
-                # _AYBase uses 2 channels for Caprice32 and 1 for others
+                # AYBase uses 2 channels for Caprice32 and 1 for others
                 if self.channels == 2:
                     outdata[:] = np.array(chunk, dtype=np.int16).reshape(-1, 2)
                 else:

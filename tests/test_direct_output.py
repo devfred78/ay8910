@@ -47,9 +47,9 @@ class TestDirectOutput(unittest.TestCase):
 
     def test_callback_mono_mame(self):
         # Test callback with mono chip (MAME backend)
-        # We need to make the mock chip an instance of _AYBase to trigger the new logic
-        from ay8910_wrapper import _AYBase
-        self.mock_chip.__class__ = _AYBase
+        # We need to make the mock chip an instance of AYBase to trigger the new logic
+        from ay8910_wrapper import AYBase
+        self.mock_chip.__class__ = AYBase
         
         do = DirectOutput(self.mock_chip, self.sample_rate, 1, self.clock)
         outdata = np.zeros((10, 1), dtype=np.int16)
@@ -64,9 +64,9 @@ class TestDirectOutput(unittest.TestCase):
 
     def test_callback_mono_ay_emul31(self):
         # Test callback with mono chip (Ay_Emul31 backend)
-        # We need to make the mock chip an instance of _AYBase to trigger the new logic
-        from ay8910_wrapper import _AYBase
-        self.mock_chip.__class__ = _AYBase
+        # We need to make the mock chip an instance of AYBase to trigger the new logic
+        from ay8910_wrapper import AYBase
+        self.mock_chip.__class__ = AYBase
         
         do = DirectOutput(self.mock_chip, self.sample_rate, 1, self.clock)
         outdata = np.zeros((10, 1), dtype=np.int16)
@@ -80,8 +80,8 @@ class TestDirectOutput(unittest.TestCase):
 
     def test_callback_stereo_caprice32(self):
         # Test callback with stereo chip (Caprice32 signature)
-        from ay8910_wrapper import _AYBase
-        self.mock_chip.__class__ = _AYBase
+        from ay8910_wrapper import AYBase
+        self.mock_chip.__class__ = AYBase
         
         do = DirectOutput(self.mock_chip, self.sample_rate, 2, self.clock)
         outdata = np.zeros((10, 2), dtype=np.int16)

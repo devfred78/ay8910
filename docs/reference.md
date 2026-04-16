@@ -9,6 +9,7 @@ The `ay8910_wrapper` package provides a high-level interface to the PSG emulator
 ::: ay8910_wrapper
     options:
       members:
+        - AYBase
         - ay8910
         - ay8912
         - ay8913
@@ -26,7 +27,7 @@ The `ay8910_wrapper` package provides a high-level interface to the PSG emulator
         - PSG_HAS_EXPANDED_MODE
       show_root_heading: false
       show_source: false
-      inherited_members: true
+      inherited_members: false
       show_category_heading: true
       show_root_toc_entry: true
       show_root_full_path: true
