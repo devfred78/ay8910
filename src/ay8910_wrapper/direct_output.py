@@ -31,7 +31,9 @@ class DirectOutput:
         device (Any): The PSG emulator instance.
         sample_rate (int): Output sample rate in Hz.
         channels (int): Number of audio channels.
-        stream (Optional[sd.OutputStream]): The current audio output stream.
+        stream (Optional[sd.OutputStream]): The active `sounddevice.OutputStream` instance.
+            It manages the real-time audio buffer and triggers the `_callback` method.
+            It is initialized and started when calling `start()`, and closed when calling `stop()`.
 
     Example:
         ```python
